@@ -47,6 +47,7 @@ the backend · Biome for lint/format.
   with the backend's `message` (`getErrorMessage(err)`).
 - **URL state:** search, filters, sort, tabs, and pagination live in `useSearchParams`.
 - **Forms:** `@tanstack/react-form` + Zod schemas that match the backend's validation.
+- **Light theme only** (`forcedTheme="light"` in `providers/theme.provider.tsx`). Don't add `dark:` styles to new code.
 - **Images:** `next/image` only. **Public pages** export `metadata` / `generateMetadata`.
 - **Payments:** start Stripe checkout, then handle `/payment/success` and `/payment/cancel`. Never set a payment status
   from the client.

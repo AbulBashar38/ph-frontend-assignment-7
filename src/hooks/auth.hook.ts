@@ -94,3 +94,21 @@ export function useResetPassword() {
     mutationFn: resetPassword,
   });
 }
+
+export function useAuth() {
+  const { data, isLoading } = useGetMe();
+  const user = data?.data ?? null;
+  const role = user?.role ?? null;
+  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+  const isTenant = role === "TENANT";
+  const isOwner = role === "OWNER";
+
+  return {
+    user,
+    role,
+    isAdmin,
+    isTenant,
+    isOwner,
+    isLoading,
+  };
+}

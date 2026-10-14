@@ -1,13 +1,12 @@
 import { format } from "date-fns";
 
-const currencyFormatter = new Intl.NumberFormat("en-BD", {
-  style: "currency",
-  currency: "BDT",
+// Taka with South Asian digit grouping: ৳1,50,000
+const amountFormatter = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
 export function formatCurrency(amount: number) {
-  return currencyFormatter.format(amount);
+  return `৳${amountFormatter.format(amount)}`;
 }
 
 export function formatDate(value: string | Date, pattern = "dd MMM yyyy") {

@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Inter } from "next/font/google";
+import { Bricolage_Grotesque, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import Providers from "@/providers";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-display",
+});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -36,6 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn(
         "h-full antialiased font-sans",
         inter.variable,
+        bricolage.variable,
         geistMono.variable,
       )}
     >
