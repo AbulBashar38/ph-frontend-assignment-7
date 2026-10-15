@@ -29,9 +29,13 @@ export default function GoogleRoleDialog({
   const [role, setRole] = useState<RegisterRole | null>(null);
 
   return (
+    // Only the close (×) button or Cancel closes it: clicks outside and the Escape key are ignored
     <Dialog
       open={open}
-      onOpenChange={(next) => !next && !pending && onCancel()}
+      disablePointerDismissal
+      onOpenChange={(next, { reason }) => {
+        if (!next && reason === "close-press" && !pending) onCancel();
+      }}
     >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
