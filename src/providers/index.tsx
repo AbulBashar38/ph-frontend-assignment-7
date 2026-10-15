@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "motion/react";
 import type { ReactNode } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import GoogleAuthProvider from "./google-auth.provider";
@@ -11,7 +12,10 @@ export default function Providers({ children }: { children: ReactNode }) {
     <ThemeProvider>
       <GoogleAuthProvider>
         <QueryProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            {/* Every animation respects the visitor's "reduce motion" setting */}
+            <MotionConfig reducedMotion="user">{children}</MotionConfig>
+          </TooltipProvider>
         </QueryProvider>
       </GoogleAuthProvider>
     </ThemeProvider>

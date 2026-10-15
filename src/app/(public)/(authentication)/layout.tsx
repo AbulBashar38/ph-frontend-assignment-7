@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import livingRoom from "@/assets/images/living-room.jpg";
+import Reveal from "@/components/shared/motion/reveal";
+import { Stagger, StaggerItem } from "@/components/shared/motion/stagger";
+import ZoomIn from "@/components/shared/motion/zoom-in";
 
 const PROMISES = [
   { icon: Users, text: "Roommate matches scored on budget, area and habits" },
@@ -33,31 +36,38 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </div>
 
       <div className="relative hidden overflow-hidden lg:sticky lg:top-0 lg:block lg:h-svh">
-        <Image
-          src={livingRoom}
-          alt="A sunlit, furnished living room"
-          fill
-          priority
-          placeholder="blur"
-          sizes="45vw"
-          className="object-cover"
-        />
+        <ZoomIn className="absolute inset-0">
+          <Image
+            src={livingRoom}
+            alt="A sunlit, furnished living room"
+            fill
+            priority
+            placeholder="blur"
+            sizes="45vw"
+            className="object-cover"
+          />
+        </ZoomIn>
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
 
         <div className="absolute inset-x-10 bottom-10 text-white">
-          <p className="max-w-md font-heading text-4xl leading-tight font-bold text-balance">
-            A room that fits. People who fit with you.
-          </p>
-          <ul className="mt-6 space-y-3">
+          <Reveal delay={0.4}>
+            <p className="max-w-md font-heading text-4xl leading-tight font-bold text-balance">
+              A room that fits. People who fit with you.
+            </p>
+          </Reveal>
+          <Stagger className="mt-6 space-y-3" stagger={0.15}>
             {PROMISES.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-center gap-3 text-white/85">
+              <StaggerItem
+                key={text}
+                className="flex items-center gap-3 text-white/85"
+              >
                 <span className="flex size-9 items-center justify-center rounded-lg bg-white/15 backdrop-blur">
                   <Icon className="size-4" />
                 </span>
                 {text}
-              </li>
+              </StaggerItem>
             ))}
-          </ul>
+          </Stagger>
         </div>
       </div>
     </div>

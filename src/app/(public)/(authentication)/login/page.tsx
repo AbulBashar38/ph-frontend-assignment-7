@@ -6,6 +6,7 @@ import AuthHeading from "@/components/auth/auth-heading";
 import DemoLogin, { type DemoAccount } from "@/components/auth/demo-login";
 import LoginForm from "@/components/form/login-form";
 import GoogleLoginButton from "@/components/modules/google-login/google-login";
+import Reveal from "@/components/shared/motion/reveal";
 import { FieldSeparator } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -47,53 +48,59 @@ export default function LoginPage() {
         description="Log in to your account to continue."
       />
 
-      <Suspense fallback={<AuthFormSkeleton />}>
-        <LoginForm />
-        <div className="mt-4">
-          <GoogleLoginButton />
-        </div>
-      </Suspense>
-
-      <FieldSeparator>OR</FieldSeparator>
-
-      <section
-        id="demo-login"
-        aria-labelledby="demo-login-title"
-        className="space-y-4"
-      >
-        <div>
-          <h2
-            id="demo-login-title"
-            className="font-heading text-lg font-semibold"
-          >
-            Quick demo login
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Explore the platform instantly as any role.
-          </p>
-        </div>
-        <Suspense
-          fallback={
-            <div className="grid gap-3 sm:grid-cols-3">
-              <Skeleton className="h-32 rounded-2xl" />
-              <Skeleton className="h-32 rounded-2xl" />
-              <Skeleton className="h-32 rounded-2xl" />
-            </div>
-          }
-        >
-          <DemoLogin accounts={DEMO_ACCOUNTS} />
+      <Reveal delay={0.1}>
+        <Suspense fallback={<AuthFormSkeleton />}>
+          <LoginForm />
+          <div className="mt-4">
+            <GoogleLoginButton />
+          </div>
         </Suspense>
-      </section>
+      </Reveal>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/register"
-          className="font-semibold text-primary hover:underline"
+      <Reveal delay={0.2} className="space-y-8">
+        <FieldSeparator>OR</FieldSeparator>
+
+        <section
+          id="demo-login"
+          aria-labelledby="demo-login-title"
+          className="space-y-4"
         >
-          Sign up
-        </Link>
-      </p>
+          <div>
+            <h2
+              id="demo-login-title"
+              className="font-heading text-lg font-semibold"
+            >
+              Quick demo login
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Explore the platform instantly as any role.
+            </p>
+          </div>
+          <Suspense
+            fallback={
+              <div className="grid gap-3 sm:grid-cols-3">
+                <Skeleton className="h-32 rounded-2xl" />
+                <Skeleton className="h-32 rounded-2xl" />
+                <Skeleton className="h-32 rounded-2xl" />
+              </div>
+            }
+          >
+            <DemoLogin accounts={DEMO_ACCOUNTS} />
+          </Suspense>
+        </section>
+      </Reveal>
+
+      <Reveal delay={0.3}>
+        <p className="text-center text-sm text-muted-foreground">
+          Don&apos;t have an account?{" "}
+          <Link
+            href="/register"
+            className="font-semibold text-primary hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      </Reveal>
     </div>
   );
 }

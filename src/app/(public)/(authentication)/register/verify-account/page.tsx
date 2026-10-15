@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import AuthFormSkeleton from "@/components/auth/auth-form-skeleton";
 import AuthHeading from "@/components/auth/auth-heading";
 import VerifyAccountForm from "@/components/form/verify-account-form";
+import Reveal from "@/components/shared/motion/reveal";
 
 export const metadata: Metadata = {
   title: "Verify your email",
@@ -18,9 +19,11 @@ export default function VerifyAccountPage() {
         title="Verify your email"
         description="One last step: confirm it's really you."
       />
-      <Suspense fallback={<AuthFormSkeleton fields={1} />}>
-        <VerifyAccountForm />
-      </Suspense>
+      <Reveal delay={0.1}>
+        <Suspense fallback={<AuthFormSkeleton fields={1} />}>
+          <VerifyAccountForm />
+        </Suspense>
+      </Reveal>
     </div>
   );
 }
