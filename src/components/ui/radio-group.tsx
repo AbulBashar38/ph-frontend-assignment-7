@@ -34,4 +34,44 @@ function RadioGroupItem({ className, ...props }: RadioPrimitive.Root.Props) {
   );
 }
 
-export { RadioGroup, RadioGroupItem };
+// A whole card that acts as one radio option: icon, title and description, highlighted when selected
+function RadioCard({
+  value,
+  title,
+  description,
+  icon,
+  className,
+}: {
+  value: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  icon?: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <label
+      data-slot="radio-card"
+      className={cn(
+        "flex cursor-pointer items-start gap-3 rounded-xl border bg-card p-4 transition-colors hover:border-primary/40 has-data-checked:border-primary has-data-checked:bg-accent/60 has-[:focus-visible]:ring-3 has-[:focus-visible]:ring-ring/50",
+        className,
+      )}
+    >
+      {icon && (
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent text-primary [&_svg]:size-5">
+          {icon}
+        </span>
+      )}
+      <span className="flex-1">
+        <span className="block font-semibold">{title}</span>
+        {description && (
+          <span className="mt-0.5 block text-sm text-muted-foreground">
+            {description}
+          </span>
+        )}
+      </span>
+      <RadioGroupItem value={value} className="mt-0.5" />
+    </label>
+  );
+}
+
+export { RadioCard, RadioGroup, RadioGroupItem };
