@@ -40,12 +40,13 @@ export type RoomStatus =
   | "UNAVAILABLE"
   | "MAINTENANCE";
 
+// Public endpoints return only id + url; management endpoints add the Cloudinary fields
 export interface PropertyImage {
   id: string;
   url: string;
-  publicId: string;
-  propertyId: string;
-  createdAt: string;
+  publicId?: string;
+  propertyId?: string;
+  createdAt?: string;
 }
 
 export interface RoomSummary {
