@@ -23,6 +23,10 @@ const badgeVariants = cva(
         // Frosted chip that sits on top of photos or colored panels
         glass:
           "bg-background/90 font-semibold text-foreground shadow-sm backdrop-blur",
+        // Status tones (see StatusBadge): good, needs attention, inactive
+        positive: "bg-accent text-primary",
+        warning: "bg-highlight/25 text-highlight-foreground",
+        muted: "bg-muted text-muted-foreground",
         // Clickable filter chip: bordered, turns brand-colored on hover
         chip: "border-border bg-card text-foreground/80 [a,button]:hover:border-primary/40 [a,button]:hover:text-primary aria-pressed:border-primary aria-pressed:bg-accent aria-pressed:text-primary",
       },
