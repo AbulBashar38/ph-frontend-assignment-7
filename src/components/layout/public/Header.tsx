@@ -23,6 +23,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -152,32 +153,35 @@ export default function Header() {
                   <ChevronDown className="size-3 text-muted-foreground" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user.name}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground truncate">
-                        {user.email}
-                      </p>
-                      <div className="pt-1">
-                        <Badge
-                          variant={getRoleBadgeVariant(role)}
-                          size="sm"
-                          className="capitalize"
-                        >
-                          {role.toLowerCase().replace("_", " ")}
-                        </Badge>
+                  {/* A label must live inside a group (Base UI throws error #31 otherwise) */}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {user.name}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground truncate">
+                          {user.email}
+                        </p>
+                        <div className="pt-1">
+                          <Badge
+                            variant={getRoleBadgeVariant(role)}
+                            size="sm"
+                            className="capitalize"
+                          >
+                            {role.toLowerCase().replace("_", " ")}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    render={<Link href={getDashboardPath(role)} />}
-                  >
-                    <LayoutDashboard className="size-4 mr-2" />
-                    My Dashboard
-                  </DropdownMenuItem>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      render={<Link href={getDashboardPath(role)} />}
+                    >
+                      <LayoutDashboard className="size-4 mr-2" />
+                      My Dashboard
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleLogout}
