@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import AuthFormSkeleton from "@/components/auth/auth-form-skeleton";
 import AuthHeading from "@/components/auth/auth-heading";
+import AuthLinks from "@/components/auth/auth-links";
 import VerifyAccountForm from "@/components/form/verify-account-form";
 import Reveal from "@/components/shared/motion/reveal";
 
@@ -24,6 +25,7 @@ export default function VerifyAccountPage() {
           <VerifyAccountForm />
         </Suspense>
       </Reveal>
+      <AuthLinks current="verify" delay={0.2} />
     </div>
   );
 }

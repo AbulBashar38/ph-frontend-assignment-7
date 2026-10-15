@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import AuthFormSkeleton from "@/components/auth/auth-form-skeleton";
 import AuthHeading from "@/components/auth/auth-heading";
+import AuthLinks from "@/components/auth/auth-links";
 import RegisterForm from "@/components/form/register-form";
 import Reveal from "@/components/shared/motion/reveal";
 
@@ -31,17 +31,7 @@ export default function RegisterPage() {
         </Suspense>
       </Reveal>
 
-      <Reveal delay={0.2}>
-        <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-semibold text-primary hover:underline"
-          >
-            Log in
-          </Link>
-        </p>
-      </Reveal>
+      <AuthLinks current="register" delay={0.2} />
     </div>
   );
 }

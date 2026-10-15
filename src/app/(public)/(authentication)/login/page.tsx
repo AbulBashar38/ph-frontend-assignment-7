@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import AuthFormSkeleton from "@/components/auth/auth-form-skeleton";
 import AuthHeading from "@/components/auth/auth-heading";
+import AuthLinks from "@/components/auth/auth-links";
 import DemoLogin, { type DemoAccount } from "@/components/auth/demo-login";
 import LoginForm from "@/components/form/login-form";
 import GoogleLoginButton from "@/components/modules/google-login/google-login";
@@ -90,17 +90,7 @@ export default function LoginPage() {
         </section>
       </Reveal>
 
-      <Reveal delay={0.3}>
-        <p className="text-center text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
-          <Link
-            href="/register"
-            className="font-semibold text-primary hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </Reveal>
+      <AuthLinks current="login" delay={0.3} />
     </div>
   );
 }
