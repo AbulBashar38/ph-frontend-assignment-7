@@ -17,3 +17,8 @@ export function getErrorMessage(
 
   return fallback;
 }
+
+// HTTP status of a failed API call (undefined for network errors and non-HTTP errors)
+export function getErrorStatus(error: unknown) {
+  return error instanceof FetchError ? error.statusCode : undefined;
+}

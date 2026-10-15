@@ -1,9 +1,9 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import { Building2, KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import RoleChoice from "@/components/auth/role-choice";
 import GoogleLoginButton from "@/components/modules/google-login/google-login";
 import PasswordInput from "@/components/shared/password-input";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
 import { Spinner } from "@/components/ui/spinner";
 import { useRegistration } from "@/hooks";
 import type { RegisterRole } from "@/types";
@@ -97,26 +96,10 @@ export default function RegisterForm() {
             {(field) => (
               <Field>
                 <FieldLabel>I want to</FieldLabel>
-                <RadioGroup
+                <RoleChoice
                   value={field.state.value}
-                  onValueChange={(value) =>
-                    field.handleChange(value as RegisterRole)
-                  }
-                  className="grid-cols-1 gap-3 sm:grid-cols-2"
-                >
-                  <RadioCard
-                    value="TENANT"
-                    icon={<KeyRound />}
-                    title="Find a place"
-                    description="Rent a room or find roommates"
-                  />
-                  <RadioCard
-                    value="OWNER"
-                    icon={<Building2 />}
-                    title="Rent out space"
-                    description="List properties and rooms"
-                  />
-                </RadioGroup>
+                  onChange={field.handleChange}
+                />
               </Field>
             )}
           </form.Field>
