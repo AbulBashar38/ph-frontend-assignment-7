@@ -1,0 +1,231 @@
+"use client";
+
+import { useForm } from "@tanstack/react-form";
+import { Building2, KeyRound } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import GoogleLoginButton from "@/components/modules/google-login/google-login";
+import PasswordInput from "@/components/shared/password-input";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+  FieldSeparator,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { RadioCard, RadioGroup } from "@/components/ui/radio-group";
+import { Spinner } from "@/components/ui/spinner";
+import { useRegistration } from "@/hooks";
+import type { RegisterRole } from "@/types";
+import { getErrorMessage } from "@/utils";
+import { registerSchema } from "@/validation";
+
+type TextFieldName = "name" | "email" | "phone";
+
+const TEXT_FIELDS: {
+  name: TextFieldName;
+  label: string;
+  type: string;
+  autoComplete: string;
+  placeholder: string;
+}[] = [
+  {
+    name: "name",
+    label: "Full name",
+    type: "text",
+    autoComplete: "name",
+    placeholder: "Your full name",
+  },
+  {
+    name: "email",
+    label: "Email",
+    type: "email",
+    autoComplete: "email",
+    placeholder: "you@example.com",
+  },
+  {
+    name: "phone",
+    label: "Phone number",
+    type: "tel",
+    autoComplete: "tel",
+    placeholder: "01712345678",
+  },
+];
+
+export default function RegisterForm() {
+  const router = useRouter();
+  const { mutate: register, isPending } = useRegistration();
+
+  const form = useForm({
+    defaultValues: {
+      role: "TENANT" as RegisterRole,
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    },
+    validators: { onChange: registerSchema, onSubmit: registerSchema },
+    onSubmit: ({ value }) => {
+      const { confirmPassword: _confirmPassword, ...payload } = value;
+
+      register(payload, {
+        onSuccess: (res) => {
+          toast.success(res.message);
+          const params = new URLSearchParams({ email: payload.email.trim() });
+          router.push(`/register/verify-account?${params.toString()}`);
+        },
+        onError: (error) => toast.error(getErrorMessage(error)),
+      });
+    },
+  });
+
+  return (
+    <div className="space-y-6">
+      <form
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          form.handleSubmit();
+        }}
+      >
+        <FieldGroup>
+          <form.Field name="role">
+            {(field) => (
+              <Field>
+                <FieldLabel>I want to</FieldLabel>
+                <RadioGroup
+                  value={field.state.value}
+                  onValueChange={(value) =>
+                    field.handleChange(value as RegisterRole)
+                  }
+                  className="grid-cols-1 gap-3 sm:grid-cols-2"
+                >
+                  <RadioCard
+                    value="TENANT"
+                    icon={<KeyRound />}
+                    title="Find a place"
+                    description="Rent a room or find roommates"
+                  />
+                  <RadioCard
+                    value="OWNER"
+                    icon={<Building2 />}
+                    title="Rent out space"
+                    description="List properties and rooms"
+                  />
+                </RadioGroup>
+              </Field>
+            )}
+          </form.Field>
+
+          {TEXT_FIELDS.map(
+            ({ name, label, type, autoComplete, placeholder }) => (
+              <form.Field key={name} name={name}>
+                {(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid;
+
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        type={type}
+                        autoComplete={autoComplete}
+                        placeholder={placeholder}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        aria-invalid={isInvalid}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              </form.Field>
+            ),
+          )}
+
+          <form.Field name="password">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                  <PasswordInput
+                    id={field.name}
+                    name={field.name}
+                    autoComplete="new-password"
+                    placeholder="Create a password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid ? (
+                    <FieldError errors={field.state.meta.errors} />
+                  ) : (
+                    <FieldDescription>
+                      8+ characters with upper and lower case, a number and a
+                      symbol.
+                    </FieldDescription>
+                  )}
+                </Field>
+              );
+            }}
+          </form.Field>
+
+          <form.Field name="confirmPassword">
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel htmlFor={field.name}>Confirm password</FieldLabel>
+                  <PasswordInput
+                    id={field.name}
+                    name={field.name}
+                    autoComplete="new-password"
+                    placeholder="Repeat your password"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(event) => field.handleChange(event.target.value)}
+                    aria-invalid={isInvalid}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
+          </form.Field>
+
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? (
+              <>
+                <Spinner /> Creating account
+              </>
+            ) : (
+              "Create account"
+            )}
+          </Button>
+        </FieldGroup>
+      </form>
+
+      <FieldSeparator>OR</FieldSeparator>
+
+      <form.Subscribe selector={(state) => state.values.role}>
+        {(role) => <GoogleLoginButton role={role} />}
+      </form.Subscribe>
+    </div>
+  );
+}
