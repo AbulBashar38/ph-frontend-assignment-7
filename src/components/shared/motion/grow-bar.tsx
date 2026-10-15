@@ -17,7 +17,7 @@ export default function GrowBar({
       className={className}
       initial={{ width: 0 }}
       whileInView={{ width: `${percent}%` }}
-      viewport={{ once: true, margin: "-40px" }}
+      viewport={{ once: true, amount: 0.5 }}
       transition={{ duration: 1.1, delay, ease: [0.22, 1, 0.36, 1] }}
     />
   );

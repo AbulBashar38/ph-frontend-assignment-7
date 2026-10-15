@@ -29,7 +29,7 @@ export default function JourneySteps({ steps }: { steps: Step[] }) {
       variants={list}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, margin: "-80px" }}
+      viewport={{ once: true, amount: 0.2 }}
     >
       <motion.span
         aria-hidden="true"

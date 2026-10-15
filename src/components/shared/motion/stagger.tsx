@@ -35,7 +35,7 @@ export function Stagger({ children, className, stagger = 0.09 }: StaggerProps) {
       custom={stagger}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, margin: "-60px" }}
+      viewport={{ once: true, amount: 0.15 }}
     >
       {children}
     </motion.div>
