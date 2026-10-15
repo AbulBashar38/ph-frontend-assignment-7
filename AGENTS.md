@@ -53,6 +53,13 @@ the backend · Biome for lint/format.
   from the client.
 - **Real API data only:** no mocks, lorem ipsum, or placeholder images.
 - Reuse the shared components (`components/shared/*`) and hooks instead of copy-pasting UI.
+- **Style inside the UI components, not in parents.** Sizes, colors, and shapes belong in the component's `cva`
+  variants (`components/ui/*`); parents pick them with props (`<Button variant="highlight" size="lg" shape="pill">`,
+  `buttonVariants({ variant, size })` for links). Parents only add layout classes (margin, width, alignment). Need a
+  new look? Add a variant instead of overriding classes at the call site. Button sizes: xs 40px, sm 48px, **default
+  56px** (use it unless there's a reason not to), lg 60px, xl 64px; inputs and select triggers are 40px. Badge: sm 24px (small
+  labels), default 32px, lg 40px (clickable chips: `variant="chip" size="lg" render={<Link …/>}`); other variants
+  `highlight`, `glass` (over photos). Tabs: 48px list; `variant="pill"` for segmented toggles.
 - Code style follows the example: double quotes, semicolons, 2-space indent, kebab-case files, the `@/*` alias.
 
 ## Commands

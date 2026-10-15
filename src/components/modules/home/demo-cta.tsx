@@ -3,7 +3,6 @@ import Link from "next/link";
 import Reveal from "@/components/shared/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/shared/motion/stagger";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 const ROLES = [
   {
@@ -54,20 +53,14 @@ export default function DemoCta() {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 href="/register"
-                className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "h-11 gap-2 bg-highlight px-5 text-highlight-foreground hover:bg-highlight/90",
-                )}
+                className={buttonVariants({ variant: "highlight" })}
               >
                 Create free account
                 <ArrowRight className="size-4" />
               </Link>
               <Link
                 href="/properties"
-                className={cn(
-                  buttonVariants({ size: "lg", variant: "outline" }),
-                  "h-11 border-background/25 bg-transparent px-5 text-background hover:bg-background/10 hover:text-background",
-                )}
+                className={buttonVariants({ variant: "inverse" })}
               >
                 Browse listings
               </Link>

@@ -6,6 +6,7 @@ import livingRoom from "@/assets/images/living-room.jpg";
 import Float from "@/components/shared/motion/float";
 import Parallax from "@/components/shared/motion/parallax";
 import Reveal from "@/components/shared/motion/reveal";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/types";
 import { formatCurrency, formatDate, formatEnum } from "@/utils";
 
@@ -108,18 +109,18 @@ export default function HeroShowcase({
       {main && (
         <div className="absolute top-6 -right-4 hidden flex-col gap-2 sm:flex">
           <Float delay={0.9}>
-            <span className="flex items-center gap-1.5 rounded-full bg-background px-3 py-1.5 text-xs font-semibold shadow-lg">
-              <BedDouble className="size-3.5 text-primary" />
+            <Badge variant="glass" className="shadow-lg">
+              <BedDouble className="text-primary" />
               {main.availableRoomCount} room
               {main.availableRoomCount === 1 ? "" : "s"} free
-            </span>
+            </Badge>
           </Float>
           {main.earliestAvailableFrom && (
             <Float delay={1.2}>
-              <span className="flex items-center gap-1.5 rounded-full bg-highlight px-3 py-1.5 text-xs font-semibold text-highlight-foreground shadow-lg">
-                <CalendarDays className="size-3.5" />
+              <Badge variant="highlight" className="shadow-lg">
+                <CalendarDays />
                 Move in {formatDate(main.earliestAvailableFrom, "dd MMM")}
-              </span>
+              </Badge>
             </Float>
           )}
         </div>

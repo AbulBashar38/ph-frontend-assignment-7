@@ -82,7 +82,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 backdrop-blur-md transition-all">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand Logo */}
         <Link href="/" className="group flex items-center gap-2.5">
           <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-transform group-hover:-rotate-6">
@@ -121,14 +121,14 @@ export default function Header() {
         {/* Auth & Actions */}
         <div className="hidden items-center gap-3 sm:flex">
           {isLoading ? (
-            <div className="h-8 w-24 animate-pulse rounded-md bg-muted" />
+            <div className="h-14 w-32 animate-pulse rounded-lg bg-muted" />
           ) : user && role ? (
             <div className="flex items-center gap-3">
               <Link
                 href={getDashboardPath(role)}
-                className={buttonVariants({ variant: "outline", size: "sm" })}
+                className={buttonVariants({ variant: "outline" })}
               >
-                <LayoutDashboard className="size-3.5 mr-1" />
+                <LayoutDashboard />
                 Dashboard
               </Link>
 
@@ -163,7 +163,8 @@ export default function Header() {
                       <div className="pt-1">
                         <Badge
                           variant={getRoleBadgeVariant(role)}
-                          className="text-[10px] capitalize"
+                          size="sm"
+                          className="capitalize"
                         >
                           {role.toLowerCase().replace("_", " ")}
                         </Badge>
@@ -193,22 +194,25 @@ export default function Header() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                className={buttonVariants({ variant: "ghost" })}
               >
                 Sign In
               </Link>
               <Link
                 href="/register"
-                className={buttonVariants({ variant: "default", size: "sm" })}
+                className={buttonVariants({ variant: "default" })}
               >
                 Get Started
               </Link>
               <Link
                 href="/login"
-                className="hidden xl:inline-flex items-center gap-1 rounded-full border border-dashed border-primary/40 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+                className={buttonVariants({
+                  variant: "outline",
+                  className: "hidden xl:inline-flex",
+                })}
                 title="Try 1-Click Demo Accounts"
               >
-                <Sparkles className="size-3" />
+                <Sparkles />
                 Demo Logins
               </Link>
             </div>
@@ -283,10 +287,7 @@ export default function Header() {
                           <p className="text-sm font-medium truncate">
                             {user.name}
                           </p>
-                          <Badge
-                            variant={getRoleBadgeVariant(role)}
-                            className="text-[10px]"
-                          >
+                          <Badge variant={getRoleBadgeVariant(role)} size="sm">
                             {role}
                           </Badge>
                         </div>

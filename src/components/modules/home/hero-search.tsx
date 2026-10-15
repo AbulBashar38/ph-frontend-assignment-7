@@ -4,7 +4,9 @@ import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 type SearchTarget = "properties" | "rooms";
@@ -76,34 +78,16 @@ export default function HeroSearch() {
 
   return (
     <div className="w-full">
-      <div
-        role="tablist"
-        aria-label="What are you looking for?"
-        className="mb-3 inline-flex rounded-full border bg-card/80 p-1 text-sm shadow-xs backdrop-blur"
+      <Tabs
+        value={target}
+        onValueChange={(value: SearchTarget) => switchTarget(value)}
+        className="mb-3"
       >
-        {(
-          [
-            ["properties", "Whole homes"],
-            ["rooms", "Rooms & shares"],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            key={value}
-            type="button"
-            role="tab"
-            aria-selected={target === value}
-            onClick={() => switchTarget(value)}
-            className={cn(
-              "rounded-full px-4 py-1.5 font-medium transition-colors",
-              target === value
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
+        <TabsList variant="pill" aria-label="What are you looking for?">
+          <TabsTrigger value="properties">Whole homes</TabsTrigger>
+          <TabsTrigger value="rooms">Rooms &amp; shares</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <form
         onSubmit={handleSubmit}
@@ -155,26 +139,25 @@ export default function HeroSearch() {
           </select>
         </label>
 
-        <Button
-          type="submit"
-          size="lg"
-          className="mt-1 h-12 gap-2 rounded-xl px-6 text-sm font-semibold sm:mt-0 sm:rounded-full"
-        >
+        <Button type="submit" shape="pill" className="mt-1 sm:mt-0">
           <Search className="size-4" />
           Search
         </Button>
       </form>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+      <div className="mt-5 flex flex-wrap items-center gap-2 text-sm">
         <span className="text-muted-foreground">Popular:</span>
         {POPULAR_AREAS.map((area) => (
-          <Link
+          <Badge
             key={area}
-            href={`/${target}?area=${encodeURIComponent(area)}`}
-            className="rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-foreground/80 transition-colors hover:border-primary/40 hover:text-primary"
+            variant="chip"
+            size="lg"
+            render={
+              <Link href={`/${target}?area=${encodeURIComponent(area)}`} />
+            }
           >
             {area}
-          </Link>
+          </Badge>
         ))}
       </div>
     </div>

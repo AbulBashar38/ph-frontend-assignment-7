@@ -1,6 +1,7 @@
 import { ArrowUpRight, BedDouble, CalendarDays, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import type { Property } from "@/types";
 import { formatCurrency, formatDate, formatEnum } from "@/utils";
 
@@ -37,15 +38,18 @@ export default function PropertyCard({
           </div>
         )}
 
-        <span className="absolute top-3 left-3 rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold backdrop-blur">
+        <Badge variant="glass" className="absolute top-3 left-3">
           {formatEnum(property.propertyType)}
-        </span>
+        </Badge>
 
         {property.minAvailableRent != null && (
-          <span className="absolute bottom-3 left-3 rounded-full bg-highlight px-3 py-1 text-sm font-bold text-highlight-foreground shadow-sm">
+          <Badge
+            variant="highlight"
+            className="absolute bottom-3 left-3 font-bold"
+          >
             {formatCurrency(property.minAvailableRent)}
-            <span className="font-medium opacity-80"> /mo</span>
-          </span>
+            <span className="font-medium opacity-80">/mo</span>
+          </Badge>
         )}
       </div>
 

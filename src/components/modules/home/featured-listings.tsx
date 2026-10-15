@@ -5,7 +5,6 @@ import { Stagger, StaggerItem } from "@/components/shared/motion/stagger";
 import PropertyCard from "@/components/shared/property-card";
 import SectionHeading from "@/components/shared/section-heading";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import type { Property } from "@/types";
 
 export default function FeaturedListings({
@@ -27,10 +26,10 @@ export default function FeaturedListings({
               total > 0 && (
                 <Link
                   href="/properties"
-                  className={cn(
-                    buttonVariants({ variant: "outline" }),
-                    "gap-2 self-start md:self-auto",
-                  )}
+                  className={buttonVariants({
+                    variant: "outline",
+                    className: "self-start md:self-auto",
+                  })}
                 >
                   View all {total} listing{total === 1 ? "" : "s"}
                   <ArrowRight className="size-4" />
@@ -83,7 +82,10 @@ export default function FeaturedListings({
               Own a flat or a spare room? Publish it in a few minutes and start
               receiving viewing requests.
             </p>
-            <Link href="/register" className={cn(buttonVariants(), "mt-6")}>
+            <Link
+              href="/register"
+              className={buttonVariants({ className: "mt-6" })}
+            >
               List your property
             </Link>
           </div>

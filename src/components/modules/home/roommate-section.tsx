@@ -7,7 +7,6 @@ import GrowBar from "@/components/shared/motion/grow-bar";
 import Parallax from "@/components/shared/motion/parallax";
 import Reveal from "@/components/shared/motion/reveal";
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 // Same weights as the backend's matcher (roommate.constant.ts → MATCH_WEIGHTS, total 100)
 const FACTORS = [
@@ -54,20 +53,14 @@ export default function RoommateSection() {
           <Reveal delay={0.3} className="mt-8 flex flex-wrap gap-3">
             <Link
               href="/register"
-              className={cn(
-                buttonVariants({ size: "lg" }),
-                "h-11 gap-2 bg-highlight px-5 text-highlight-foreground hover:bg-highlight/90",
-              )}
+              className={buttonVariants({ variant: "highlight" })}
             >
               Create a roommate profile
               <ArrowRight className="size-4" />
             </Link>
             <Link
               href="/rooms?roomType=SHARED"
-              className={cn(
-                buttonVariants({ size: "lg", variant: "outline" }),
-                "h-11 border-current/30 bg-transparent px-5 text-current hover:bg-current/10 hover:text-current",
-              )}
+              className={buttonVariants({ variant: "inverse" })}
             >
               Browse shared rooms
             </Link>
