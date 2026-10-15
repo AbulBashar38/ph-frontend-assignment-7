@@ -46,7 +46,10 @@ export const registerSchema = z
     phone: phoneSchema,
     password: passwordSchema,
     confirmPassword: z.string().min(1, "Please confirm your password"),
-    role: z.enum(["TENANT", "OWNER"], "Please choose tenant or owner"),
+    role: z.enum(
+      ["TENANT", "OWNER"],
+      "Please choose whether you want to find a place or rent out space",
+    ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

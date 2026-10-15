@@ -60,7 +60,8 @@ export default function RegisterForm() {
 
   const form = useForm({
     defaultValues: {
-      role: "TENANT" as RegisterRole,
+      // Nothing pre-selected, so nobody becomes a tenant just by not noticing the choice
+      role: null as RegisterRole | null,
       name: "",
       email: "",
       phone: "",
@@ -69,7 +70,10 @@ export default function RegisterForm() {
     },
     validators: { onChange: registerSchema, onSubmit: registerSchema },
     onSubmit: ({ value }) => {
-      const { confirmPassword: _confirmPassword, ...payload } = value;
+      const { confirmPassword: _confirmPassword, role, ...rest } = value;
+      // Validation already requires a role; this narrows the type
+      if (!role) return;
+      const payload = { ...rest, role };
 
       register(payload, {
         onSuccess: (res) => {
@@ -93,15 +97,21 @@ export default function RegisterForm() {
       >
         <FieldGroup>
           <form.Field name="role">
-            {(field) => (
-              <Field>
-                <FieldLabel>I want to</FieldLabel>
-                <RoleChoice
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                />
-              </Field>
-            )}
+            {(field) => {
+              const isInvalid =
+                field.state.meta.isTouched && !field.state.meta.isValid;
+
+              return (
+                <Field data-invalid={isInvalid}>
+                  <FieldLabel>I want to</FieldLabel>
+                  <RoleChoice
+                    value={field.state.value}
+                    onChange={field.handleChange}
+                  />
+                  {isInvalid && <FieldError errors={field.state.meta.errors} />}
+                </Field>
+              );
+            }}
           </form.Field>
 
           {TEXT_FIELDS.map(
@@ -207,7 +217,8 @@ export default function RegisterForm() {
       <FieldSeparator>OR</FieldSeparator>
 
       <form.Subscribe selector={(state) => state.values.role}>
-        {(role) => <GoogleLoginButton role={role} />}
+        {/* No role chosen yet: a first-time Google user gets the role popup instead */}
+        {(role) => <GoogleLoginButton role={role ?? undefined} />}
       </form.Subscribe>
     </div>
   );
