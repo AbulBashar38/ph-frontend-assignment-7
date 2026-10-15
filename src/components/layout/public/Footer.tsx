@@ -126,7 +126,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/login"
+                  href="/login#demo-login"
                   className="hover:text-foreground transition-colors font-medium text-primary"
                 >
                   Quick Demo Login

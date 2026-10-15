@@ -205,7 +205,7 @@ export default function Header() {
                 Get Started
               </Link>
               <Link
-                href="/login"
+                href="/login#demo-login"
                 className={buttonVariants({
                   variant: "outline",
                   className: "hidden xl:inline-flex",
@@ -340,7 +340,7 @@ export default function Header() {
                         Get Started
                       </Link>
                       <Link
-                        href="/login"
+                        href="/login#demo-login"
                         onClick={() => setMobileMenuOpen(false)}
                         className={buttonVariants({
                           variant: "secondary",
