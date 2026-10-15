@@ -16,7 +16,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -36,7 +35,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useAuth, useLogout } from "@/hooks";
+import { useAuth, useLogoutAction } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { getDashboardPath } from "@/utils";
 
@@ -53,19 +52,8 @@ const NAV_LINKS = [
 export default function Header() {
   const pathname = usePathname();
   const { user, role, isLoading } = useAuth();
-  const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const { logout, isLoggingOut } = useLogoutAction();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout(undefined, {
-      onSuccess: () => {
-        toast.success("Logged out successfully");
-      },
-      onError: () => {
-        toast.error("Logout failed. Please try again.");
-      },
-    });
-  };
 
   const getRoleBadgeVariant = (userRole?: string) => {
     switch (userRole) {
@@ -184,7 +172,7 @@ export default function Header() {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={handleLogout}
+                    onClick={() => logout()}
                     disabled={isLoggingOut}
                     className="text-destructive focus:bg-destructive/10 focus:text-destructive"
                   >
@@ -311,10 +299,8 @@ export default function Header() {
 
                       <Button
                         variant="outline"
-                        onClick={() => {
-                          handleLogout();
-                          setMobileMenuOpen(false);
-                        }}
+                        onClick={() => logout(() => setMobileMenuOpen(false))}
+                        disabled={isLoggingOut}
                         className="w-full justify-center text-destructive"
                       >
                         <LogOut className="size-4 mr-2" />

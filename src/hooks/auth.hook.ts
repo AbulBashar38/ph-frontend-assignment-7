@@ -62,9 +62,13 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: userLogout,
-    // Drop every cached query so the next user never sees the previous one's data
-    onSettled: () => {
-      queryClient.clear();
+    onSuccess: () => {
+      // Signed out right away for every component reading the user (no refetch, no flash of the old user)
+      queryClient.setQueryData(["user"], null);
+      // Drop every other cached query so the next user never sees the previous one's data
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== "user",
+      });
     },
   });
 }
