@@ -6,6 +6,7 @@ export const emailSchema = z
   .string("Email is required")
   .trim()
   .toLowerCase()
+  .min(1, "Email is required")
   .pipe(z.email("Invalid email address"));
 
 export const passwordSchema = z

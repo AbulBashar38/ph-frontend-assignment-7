@@ -14,3 +14,18 @@ export function getDashboardPath(role: UserRole) {
   }
   return role === "OWNER" ? "/owner" : "/dashboard";
 }
+
+// Where to send a user after login: the requested page if it's a safe in-app path inside their own area,
+// otherwise their dashboard home
+export function getPostLoginPath(role: UserRole, redirect?: string | null) {
+  const home = getDashboardPath(role);
+  const isInternal =
+    !!redirect && redirect.startsWith("/") && !redirect.startsWith("//");
+  const isPublicOrOwnArea =
+    !!redirect &&
+    !["/dashboard", "/owner", "/admin"].some(
+      (area) => redirect.startsWith(area) && !redirect.startsWith(home),
+    );
+
+  return isInternal && isPublicOrOwnArea ? redirect : home;
+}
