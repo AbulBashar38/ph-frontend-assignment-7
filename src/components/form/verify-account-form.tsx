@@ -4,7 +4,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -14,7 +14,12 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { Spinner } from "@/components/ui/spinner";
-import { useAuthRedirect, useResendOtp, useVerifyEmail } from "@/hooks";
+import {
+  useAuthRedirect,
+  useCountdown,
+  useResendOtp,
+  useVerifyEmail,
+} from "@/hooks";
 import { getErrorMessage } from "@/utils";
 
 const OTP_LENGTH = 6;
@@ -29,13 +34,9 @@ export default function VerifyAccountForm() {
 
   const [otp, setOtp] = useState("");
   const [showError, setShowError] = useState(false);
-  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_SECONDS);
-
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setTimeout(() => setCooldown((value) => value - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [cooldown]);
+  const { remaining: cooldown, restart: restartCooldown } = useCountdown(
+    RESEND_COOLDOWN_SECONDS,
+  );
 
   if (!email) {
     return (
@@ -82,7 +83,7 @@ export default function VerifyAccountForm() {
         onSuccess: (res) => {
           toast.success(res.message);
           setOtp("");
-          setCooldown(RESEND_COOLDOWN_SECONDS);
+          restartCooldown();
         },
         onError: (error) => toast.error(getErrorMessage(error)),
       },
