@@ -1,13 +1,12 @@
 "use client";
 
-import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { RotateCcw, SlidersHorizontal } from "lucide-react";
 import { ALL_AMENITIES, AMENITY_ICONS } from "@/components/shared/amenity-list";
+import SearchInput from "@/components/shared/search-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import {
   Sheet,
@@ -39,49 +38,6 @@ export const FILTER_KEYS = [
   "availableOnly",
 ] as const;
 
-// A text box that writes to the URL a moment after the user stops typing
-function DebouncedInput({
-  urlKey,
-  ...props
-}: { urlKey: string } & React.ComponentProps<typeof Input>) {
-  const { get, set } = useUrlState();
-  const urlValue = get(urlKey);
-  const [value, setValue] = useState(urlValue);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Always commit with the latest URL state, even if other filters changed while typing
-  const setLatest = useRef(set);
-
-  useEffect(() => {
-    setLatest.current = set;
-  });
-
-  // Follow the URL when it changes from elsewhere (back button, "Clear all", a chip link)
-  useEffect(() => setValue(urlValue), [urlValue]);
-
-  useEffect(
-    () => () => {
-      if (timer.current) clearTimeout(timer.current);
-    },
-    [],
-  );
-
-  return (
-    <Input
-      {...props}
-      value={value}
-      onChange={(event) => {
-        const next = event.target.value;
-        setValue(next);
-        if (timer.current) clearTimeout(timer.current);
-        timer.current = setTimeout(
-          () => setLatest.current({ [urlKey]: next.trim() }),
-          400,
-        );
-      }}
-    />
-  );
-}
-
 function FilterControls({ kind }: { kind: ListingKind }) {
   const { get, set } = useUrlState();
   const amenities = get("amenities").split(",").filter(Boolean);
@@ -97,24 +53,18 @@ function FilterControls({ kind }: { kind: ListingKind }) {
     <FieldGroup className="gap-5">
       <Field>
         <FieldLabel htmlFor={`${kind}-search`}>Search</FieldLabel>
-        <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <DebouncedInput
-            id={`${kind}-search`}
-            urlKey="searchTerm"
-            placeholder={
-              kind === "properties"
-                ? "Title, street, area…"
-                : "Room or property…"
-            }
-            className="pl-10"
-          />
-        </div>
+        <SearchInput
+          id={`${kind}-search`}
+          placeholder={
+            kind === "properties" ? "Title, street, area…" : "Room or property…"
+          }
+        />
       </Field>
 
       <Field>
         <FieldLabel htmlFor={`${kind}-area`}>Area</FieldLabel>
-        <DebouncedInput
+        <SearchInput
+          withIcon={false}
           id={`${kind}-area`}
           urlKey="area"
           placeholder="e.g. Mirpur, Dhanmondi"
@@ -156,7 +106,8 @@ function FilterControls({ kind }: { kind: ListingKind }) {
       <Field>
         <FieldLabel>Monthly rent (৳)</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
-          <DebouncedInput
+          <SearchInput
+            withIcon={false}
             urlKey="minRent"
             type="number"
             inputMode="numeric"
@@ -164,7 +115,8 @@ function FilterControls({ kind }: { kind: ListingKind }) {
             placeholder="Min"
             aria-label="Minimum monthly rent"
           />
-          <DebouncedInput
+          <SearchInput
+            withIcon={false}
             urlKey="maxRent"
             type="number"
             inputMode="numeric"
