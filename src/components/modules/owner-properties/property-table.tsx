@@ -1,6 +1,5 @@
 "use client";
 
-import { keepPreviousData } from "@tanstack/react-query";
 import { Building2, ImageOff, PlusSquare, SearchX } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,11 +7,11 @@ import DataTable, {
   type DataTableColumn,
 } from "@/components/shared/data-table";
 import EmptyState from "@/components/shared/empty-state";
+import ListFooter from "@/components/shared/list-footer";
 import QueryError from "@/components/shared/query-error";
 import SearchInput from "@/components/shared/search-input";
 import StatusBadge from "@/components/shared/status-badge";
 import TableSkeleton from "@/components/shared/table-skeleton";
-import UrlPagination from "@/components/shared/url-pagination";
 import UrlTabs from "@/components/shared/url-tabs";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useManagedProperties, useUrlState } from "@/hooks";
@@ -136,7 +135,7 @@ const columns: DataTableColumn<ManagedProperty>[] = [
 ];
 
 export default function PropertyTable() {
-  const { get, clear, searchParams } = useUrlState();
+  const { get, clear } = useUrlState();
   const searchTerm = get("searchTerm");
   const status = STATUSES.has(get("status"))
     ? (get("status") as PropertyStatus)
@@ -153,7 +152,7 @@ export default function PropertyTable() {
       sortBy: "updatedAt",
       sortOrder: "desc",
     },
-    { placeholderData: keepPreviousData },
+    { keepPrevious: true },
   );
 
   const toolbar = (
@@ -224,19 +223,11 @@ export default function PropertyTable() {
           }
         />
       </div>
-      {meta && (
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <p className="text-sm text-muted-foreground">
-            {meta.total} {meta.total === 1 ? "property" : "properties"}
-          </p>
-          <UrlPagination
-            pathname={PATHNAME}
-            params={Object.fromEntries(searchParams.entries())}
-            page={meta.page}
-            totalPages={meta.totalPages}
-          />
-        </div>
-      )}
+      <ListFooter
+        meta={meta}
+        pathname={PATHNAME}
+        noun={["property", "properties"]}
+      />
     </div>
   );
 }

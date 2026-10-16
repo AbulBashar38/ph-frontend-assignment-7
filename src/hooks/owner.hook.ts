@@ -13,8 +13,8 @@ import {
   updateRoom,
   updateRoomStatus,
 } from "@/api";
+import { patchListItem } from "@/lib/optimistic";
 import type {
-  ApiResponse,
   ManagedProperty,
   ManagedRoom,
   ManualPropertyStatus,
@@ -82,29 +82,15 @@ export function useUpdatePropertyStatus() {
       status: ManualPropertyStatus;
       reason?: string;
     }) => updatePropertyStatus(id, { status, reason }),
-    onMutate: async ({ id, status }) => {
-      const queryKey = ["managed-properties"];
-      await queryClient.cancelQueries({ queryKey });
-      const previous = queryClient.getQueriesData<
-        ApiResponse<ManagedProperty[]>
-      >({ queryKey });
-      queryClient.setQueriesData<ApiResponse<ManagedProperty[]>>(
-        { queryKey },
-        (old) =>
-          old && {
-            ...old,
-            data: old.data.map((property) =>
-              property.id === id ? { ...property, status } : property,
-            ),
-          },
-      );
-      return { previous };
-    },
-    onError: (_error, _variables, context) => {
-      for (const [key, data] of context?.previous ?? []) {
-        queryClient.setQueryData(key, data);
-      }
-    },
+    onMutate: async ({ id, status }) => ({
+      undo: await patchListItem<ManagedProperty>(
+        queryClient,
+        ["managed-properties"],
+        id,
+        { status },
+      ),
+    }),
+    onError: (_error, _variables, context) => context?.undo(),
     onSettled: invalidate,
   });
 }
@@ -158,29 +144,15 @@ export function useUpdateRoomStatus() {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: ManualRoomStatus }) =>
       updateRoomStatus(id, status),
-    onMutate: async ({ id, status }) => {
-      const queryKey = ["managed-rooms"];
-      await queryClient.cancelQueries({ queryKey });
-      const previous = queryClient.getQueriesData<ApiResponse<ManagedRoom[]>>({
-        queryKey,
-      });
-      queryClient.setQueriesData<ApiResponse<ManagedRoom[]>>(
-        { queryKey },
-        (old) =>
-          old && {
-            ...old,
-            data: old.data.map((room) =>
-              room.id === id ? { ...room, status } : room,
-            ),
-          },
-      );
-      return { previous };
-    },
-    onError: (_error, _variables, context) => {
-      for (const [key, data] of context?.previous ?? []) {
-        queryClient.setQueryData(key, data);
-      }
-    },
+    onMutate: async ({ id, status }) => ({
+      undo: await patchListItem<ManagedRoom>(
+        queryClient,
+        ["managed-rooms"],
+        id,
+        { status },
+      ),
+    }),
+    onError: (_error, _variables, context) => context?.undo(),
     onSettled: invalidate,
   });
 }

@@ -5,7 +5,7 @@ export const MAX_VIEWING_DAYS_AHEAD = 90;
 export const MAX_MOVE_IN_DAYS_AHEAD = 180;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-const optionalNote = z
+export const optionalNote = z
   .string()
   .trim()
   .max(500, "Message must be at most 500 characters long");
@@ -16,11 +16,11 @@ const startOfToday = () => {
   return today;
 };
 
-// <input type="datetime-local"> value, e.g. "2026-11-05T16:00"
-export const viewingSchema = z.object({
-  preferredAt: z
+// <input type="datetime-local"> value, e.g. "2026-11-05T16:00": a future time within the booking window
+export const viewingTimeSchema = (emptyMessage: string) =>
+  z
     .string()
-    .min(1, "Pick a date and time")
+    .min(1, emptyMessage)
     // Empty is already reported above, so the time checks only run on a real time
     .refine(
       (value) => !value || new Date(value).getTime() > Date.now(),
@@ -32,7 +32,10 @@ export const viewingSchema = z.object({
         new Date(value).getTime() <=
           Date.now() + MAX_VIEWING_DAYS_AHEAD * DAY_MS,
       `Viewings can be booked up to ${MAX_VIEWING_DAYS_AHEAD} days ahead`,
-    ),
+    );
+
+export const viewingSchema = z.object({
+  preferredAt: viewingTimeSchema("Pick a date and time"),
   message: optionalNote,
 });
 

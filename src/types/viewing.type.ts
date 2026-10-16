@@ -31,3 +31,11 @@ export interface Viewing {
   propertyId: string;
   roomId: string | null;
 }
+
+// PATCH /viewing/:id/status: the body depends on the new status (dates as ISO strings)
+export type ViewingStatusPayload =
+  | { status: "APPROVED" }
+  | { status: "REJECTED"; ownerNote?: string }
+  | { status: "RESCHEDULED"; scheduledAt: string; ownerNote?: string }
+  | { status: "COMPLETED" }
+  | { status: "CANCELLED"; reason?: string };

@@ -1,4 +1,4 @@
-import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   getApplications,
   getManagedProperties,
@@ -9,9 +9,7 @@ import {
   getViewings,
 } from "@/api";
 import type {
-  ApiResponse,
   ApplicationQueryParams,
-  ManagedProperty,
   ManagedPropertyQueryParams,
   ManagedRoomQueryParams,
   PaymentQueryParams,
@@ -19,51 +17,80 @@ import type {
   ViewingQueryParams,
 } from "@/types";
 
-export function useApplications(params?: ApplicationQueryParams) {
+export interface ListQueryOptions {
+  // Keep showing the current page while the next page or filter loads
+  keepPrevious?: boolean;
+  enabled?: boolean;
+}
+
+const listOptions = (options?: ListQueryOptions) => ({
+  enabled: options?.enabled,
+  placeholderData: options?.keepPrevious ? keepPreviousData : undefined,
+});
+
+export function useApplications(
+  params?: ApplicationQueryParams,
+  options?: ListQueryOptions,
+) {
   return useQuery({
     queryKey: ["applications", params],
     queryFn: () => getApplications(params),
+    ...listOptions(options),
   });
 }
 
-export function useViewings(params?: ViewingQueryParams) {
+export function useViewings(
+  params?: ViewingQueryParams,
+  options?: ListQueryOptions,
+) {
   return useQuery({
     queryKey: ["viewings", params],
     queryFn: () => getViewings(params),
+    ...listOptions(options),
   });
 }
 
-export function useRentals(params?: RentalQueryParams) {
+export function useRentals(
+  params?: RentalQueryParams,
+  options?: ListQueryOptions,
+) {
   return useQuery({
     queryKey: ["rentals", params],
     queryFn: () => getRentals(params),
+    ...listOptions(options),
   });
 }
 
-export function usePayments(params?: PaymentQueryParams) {
+export function usePayments(
+  params?: PaymentQueryParams,
+  options?: ListQueryOptions,
+) {
   return useQuery({
     queryKey: ["payments", params],
     queryFn: () => getPayments(params),
+    ...listOptions(options),
   });
 }
 
-type ManagedPropertiesResponse = ApiResponse<ManagedProperty[]>;
-
 export function useManagedProperties(
   params?: ManagedPropertyQueryParams,
-  options?: Pick<UseQueryOptions<ManagedPropertiesResponse>, "placeholderData">,
+  options?: ListQueryOptions,
 ) {
   return useQuery({
     queryKey: ["managed-properties", params],
     queryFn: () => getManagedProperties(params),
-    ...options,
+    ...listOptions(options),
   });
 }
 
-export function useManagedRooms(params?: ManagedRoomQueryParams) {
+export function useManagedRooms(
+  params?: ManagedRoomQueryParams,
+  options?: ListQueryOptions,
+) {
   return useQuery({
     queryKey: ["managed-rooms", params],
     queryFn: () => getManagedRooms(params),
+    ...listOptions(options),
   });
 }
 

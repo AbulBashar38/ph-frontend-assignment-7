@@ -9,17 +9,24 @@ export default function FormActions({
   pending = false,
   icon,
   secondary,
+  variant = "default",
 }: {
   submitLabel: string;
   pendingLabel?: string;
   pending?: boolean;
   icon?: ReactNode;
   secondary?: ReactNode;
+  variant?: "default" | "destructive";
 }) {
   return (
     <div className="flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
       <div>{secondary}</div>
-      <Button type="submit" disabled={pending} className="sm:min-w-44">
+      <Button
+        type="submit"
+        variant={variant}
+        disabled={pending}
+        className="sm:min-w-44"
+      >
         {pending ? (
           <>
             <Spinner /> {pendingLabel}

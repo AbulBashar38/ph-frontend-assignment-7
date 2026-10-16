@@ -31,3 +31,9 @@ export interface Application {
   propertyId: string;
   roomId: string;
 }
+
+// PATCH /application/:id/status: the body depends on the new status
+export type ApplicationStatusPayload =
+  | { status: "APPROVED" }
+  | { status: "REJECTED"; rejectionReason?: string }
+  | { status: "CANCELLED"; reason?: string };
