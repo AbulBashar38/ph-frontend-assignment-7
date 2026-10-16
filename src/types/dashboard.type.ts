@@ -219,3 +219,22 @@ export interface PlatformStats {
     monthlyRevenue: { month: string; revenue: number; payments: number }[];
   };
 }
+
+// GET /analytics/owner: the same figures scoped to one owner, plus earnings details
+export interface OwnerStats
+  extends Omit<PlatformStats, "users" | "rooms" | "payments"> {
+  rooms: PlatformStats["rooms"] & {
+    // Occupied + reserved rooms as a share of all rooms, 0–100
+    occupancyRate: number;
+  };
+  payments: PlatformStats["payments"] & {
+    // Unpaid (pending + failed) rent, whole taka
+    outstanding: number;
+    byProperty: {
+      propertyId: string;
+      title: string;
+      revenue: number;
+      payments: number;
+    }[];
+  };
+}

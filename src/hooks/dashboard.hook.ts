@@ -3,6 +3,7 @@ import {
   getApplications,
   getManagedProperties,
   getManagedRooms,
+  getOwnerStats,
   getPayments,
   getPlatformStats,
   getRentals,
@@ -98,5 +99,12 @@ export function usePlatformStats() {
   return useQuery({
     queryKey: ["platform-stats"],
     queryFn: getPlatformStats,
+  });
+}
+
+export function useOwnerStats() {
+  return useQuery({
+    queryKey: ["owner-stats"],
+    queryFn: getOwnerStats,
   });
 }

@@ -79,7 +79,7 @@ export default function AdminOverview() {
 
       <SectionCard
         title="Monthly revenue"
-        description="Rent paid through Stripe over the last 12 months"
+        description={`Rent paid through Stripe over the last ${stats?.payments.monthlyRevenue.length ?? 6} months`}
       >
         {isPending || !stats ? (
           <Skeleton className="h-64 w-full" />

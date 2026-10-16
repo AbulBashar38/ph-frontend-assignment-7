@@ -7,6 +7,7 @@ import type {
   ManagedPropertyQueryParams,
   ManagedRoom,
   ManagedRoomQueryParams,
+  OwnerStats,
   Payment,
   PaymentQueryParams,
   PlatformStats,
@@ -46,4 +47,8 @@ export function getManagedRooms(params?: ManagedRoomQueryParams) {
 
 export function getPlatformStats() {
   return apiClient<ApiResponse<PlatformStats>>("/analytics");
+}
+
+export function getOwnerStats() {
+  return apiClient<ApiResponse<OwnerStats>>("/analytics/owner");
 }

@@ -13,3 +13,8 @@ export const StatusDonut = dynamic(() => import("./status-donut"), {
   ssr: false,
   loading: () => <Skeleton className="h-48 w-full" />,
 });
+
+export const PropertyRevenueChart = dynamic(
+  () => import("./property-revenue-chart"),
+  { ssr: false, loading: () => <Skeleton className="h-56 w-full" /> },
+);
