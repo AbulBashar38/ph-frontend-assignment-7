@@ -3,6 +3,7 @@ import {
   CalendarCheck,
   CreditCard,
   FileText,
+  Heart,
   HeartHandshake,
   Home,
   KeyRound,
@@ -27,6 +28,7 @@ export const tenantRoutes: SidebarItems = [
     title: "Housing",
     items: [
       { title: "Find a place", url: "/properties", icon: Search },
+      { title: "Shortlist", url: `${prefix}/shortlist`, icon: Heart },
       { title: "Viewings", url: `${prefix}/viewings`, icon: CalendarCheck },
       { title: "Applications", url: `${prefix}/applications`, icon: FileText },
       { title: "Rentals", url: `${prefix}/rentals`, icon: KeyRound },

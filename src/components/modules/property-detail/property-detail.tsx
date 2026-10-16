@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPropertyDetail } from "@/api/public.server";
 import AmenityList from "@/components/shared/amenity-list";
 import Reveal from "@/components/shared/motion/reveal";
+import ShortlistButton from "@/components/shared/shortlist-button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate, formatEnum } from "@/utils";
 import ImageGallery from "./image-gallery";
@@ -124,6 +125,11 @@ export default async function PropertyDetail({ id }: { id: string }) {
             </dl>
 
             <ListingActions hasAvailableRoom={hasAvailableRoom} />
+            <ShortlistButton
+              propertyId={property.id}
+              title={property.title}
+              variant="inline"
+            />
 
             {property.owner && (
               <div className="flex items-center gap-3 border-t pt-5">
