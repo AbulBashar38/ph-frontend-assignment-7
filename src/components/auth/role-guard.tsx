@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 import { useGetMe } from "@/hooks";
 import type { UserRole } from "@/types";
@@ -17,16 +17,17 @@ export default function RoleGuard({
   roles: UserRole[];
 }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { data, isPending, isError } = useGetMe();
   const user = data?.data;
 
   useEffect(() => {
     if (isPending) return;
     if (isError || !user) {
-      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      // Read at redirect time instead of usePathname(), which would block prerendering of dynamic routes
+      const back = window.location.pathname + window.location.search;
+      router.replace(`/login?redirect=${encodeURIComponent(back)}`);
     }
-  }, [isPending, isError, user, router, pathname]);
+  }, [isPending, isError, user, router]);
 
   if (isPending) return <AuthLoading />;
   if (isError || !user) return <AuthLoading label="Redirecting to login" />;
