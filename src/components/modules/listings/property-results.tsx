@@ -8,7 +8,8 @@ import UrlPagination from "@/components/shared/url-pagination";
 import { buttonVariants } from "@/components/ui/button";
 import type { PublicPropertyQueryParams } from "@/types";
 import { pickSearchParams, type RawSearchParams, toPositiveInt } from "@/utils";
-import SortSelect, { type SortOption } from "./sort-select";
+import ResultsHeader from "./results-header";
+import type { SortOption } from "./sort-select";
 
 const PAGE_SIZE = 12;
 
@@ -59,27 +60,11 @@ export default async function PropertyResults({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground" aria-live="polite">
-          {meta.total > 0 ? (
-            <>
-              Showing{" "}
-              <span className="font-semibold text-foreground">
-                {(meta.page - 1) * meta.limit + 1}–
-                {Math.min(meta.page * meta.limit, meta.total)}
-              </span>{" "}
-              of{" "}
-              <span className="font-semibold text-foreground">
-                {meta.total}
-              </span>{" "}
-              {meta.total === 1 ? "listing" : "listings"}
-            </>
-          ) : (
-            "No listings found"
-          )}
-        </p>
-        <SortSelect options={SORT_OPTIONS} />
-      </div>
+      <ResultsHeader
+        meta={meta}
+        noun={["listing", "listings"]}
+        sortOptions={SORT_OPTIONS}
+      />
 
       {items.length > 0 ? (
         <Stagger className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
