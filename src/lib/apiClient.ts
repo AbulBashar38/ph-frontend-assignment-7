@@ -34,12 +34,10 @@ function refreshSession() {
   return refreshPromise;
 }
 
-async function apiClient<T>(
-  request: string,
-  options?: FetchOptions<"json">,
-): Promise<T> {
+// Runs a call; on an expired access token, refreshes once and runs it again
+async function withRefresh<T>(request: string, call: () => Promise<T>) {
   try {
-    return await client<T>(request, options);
+    return await call();
   } catch (error) {
     const canRefresh =
       error instanceof FetchError &&
@@ -50,8 +48,20 @@ async function apiClient<T>(
       throw error;
     }
 
-    return client<T>(request, options);
+    return call();
   }
+}
+
+async function apiClient<T>(
+  request: string,
+  options?: FetchOptions<"json">,
+): Promise<T> {
+  return withRefresh(request, () => client<T>(request, options));
+}
+
+// Binary responses such as PDF receipts
+export function apiBlob(request: string): Promise<Blob> {
+  return withRefresh(request, () => client(request, { responseType: "blob" }));
 }
 
 export default apiClient;

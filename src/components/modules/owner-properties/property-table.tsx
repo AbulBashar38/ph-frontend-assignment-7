@@ -1,22 +1,24 @@
 "use client";
 
-import { Building2, ImageOff, PlusSquare, SearchX } from "lucide-react";
+import { Building2, ImageOff, PlusSquare } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import DataTable, {
-  type DataTableColumn,
-} from "@/components/shared/data-table";
+import type { DataTableColumn } from "@/components/shared/data-table";
 import EmptyState from "@/components/shared/empty-state";
-import ListFooter from "@/components/shared/list-footer";
-import QueryError from "@/components/shared/query-error";
+import FilteredEmptyState from "@/components/shared/filtered-empty-state";
+import ListView from "@/components/shared/list-view";
 import SearchInput from "@/components/shared/search-input";
 import StatusBadge from "@/components/shared/status-badge";
-import TableSkeleton from "@/components/shared/table-skeleton";
 import UrlTabs from "@/components/shared/url-tabs";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { useManagedProperties, useUrlState } from "@/hooks";
+import { buttonVariants } from "@/components/ui/button";
+import {
+  type SortOptions,
+  useListParams,
+  useManagedProperties,
+  useUrlState,
+} from "@/hooks";
 import type { ManagedProperty, PropertyStatus } from "@/types";
-import { formatCurrency, formatDate, formatEnum, toPositiveInt } from "@/utils";
+import { formatCurrency, formatDate, formatEnum } from "@/utils";
 import PropertyRowActions from "./property-row-actions";
 
 const PATHNAME = "/owner/properties";
@@ -30,7 +32,14 @@ const STATUS_TABS = [
   { value: "SUSPENDED", label: "Suspended" },
 ];
 
-const STATUSES = new Set(STATUS_TABS.map((tab) => tab.value).filter(Boolean));
+const STATUSES: PropertyStatus[] = [
+  "PUBLISHED",
+  "DRAFT",
+  "INACTIVE",
+  "SUSPENDED",
+];
+
+const SORTS: SortOptions = { "": { sortBy: "updatedAt", sortOrder: "desc" } };
 
 const columns: DataTableColumn<ManagedProperty>[] = [
   {
@@ -135,99 +144,55 @@ const columns: DataTableColumn<ManagedProperty>[] = [
 ];
 
 export default function PropertyTable() {
-  const { get, clear } = useUrlState();
-  const searchTerm = get("searchTerm");
-  const status = STATUSES.has(get("status"))
-    ? (get("status") as PropertyStatus)
-    : undefined;
-  const page = toPositiveInt(get("page"), 1);
-  const filtered = Boolean(searchTerm || status);
-
+  const { get } = useUrlState();
+  const searchTerm = get("searchTerm") || undefined;
+  const { filtered, ...params } = useListParams({
+    statuses: STATUSES,
+    sorts: SORTS,
+  });
   const query = useManagedProperties(
-    {
-      searchTerm: searchTerm || undefined,
-      status,
-      page,
-      limit: PAGE_SIZE,
-      sortBy: "updatedAt",
-      sortOrder: "desc",
-    },
+    { ...params, searchTerm, limit: PAGE_SIZE },
     { keepPrevious: true },
   );
 
-  const toolbar = (
-    <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      <div className="w-full lg:max-w-sm">
-        <SearchInput
-          placeholder="Search title, address, area…"
-          aria-label="Search your properties"
-        />
-      </div>
-      <UrlTabs label="Filter by status" options={STATUS_TABS} />
-    </div>
-  );
-
-  if (query.isPending) return <TableSkeleton />;
-
-  if (query.isError) {
-    return (
-      <div className="space-y-4">
-        {toolbar}
-        <QueryError error={query.error} onRetry={() => query.refetch()} />
-      </div>
-    );
-  }
-
-  const { data: properties, meta } = query.data;
-
   return (
-    <div className="space-y-4">
-      {toolbar}
-      <div
-        className={
-          query.isPlaceholderData ? "opacity-60 transition-opacity" : ""
-        }
-      >
-        <DataTable
-          columns={columns}
-          rows={properties}
-          getRowId={(property) => property.id}
-          empty={
-            filtered ? (
-              <EmptyState
-                icon={SearchX}
-                title="No properties match"
-                description="Try another search term or status."
-                action={
-                  <Button
-                    variant="outline"
-                    onClick={() => clear(["searchTerm", "status"])}
-                  >
-                    Clear filters
-                  </Button>
-                }
-              />
-            ) : (
-              <EmptyState
-                icon={Building2}
-                title="You haven't listed a property yet"
-                description="Add your first property with photos and rooms, then publish it so tenants can find it."
-                action={
-                  <Link href={`${PATHNAME}/new`} className={buttonVariants()}>
-                    <PlusSquare />
-                    Add property
-                  </Link>
-                }
-              />
-            )
-          }
-        />
-      </div>
-      <ListFooter
-        meta={meta}
-        pathname={PATHNAME}
-        noun={["property", "properties"]}
-      />
-    </div>
+    <ListView
+      query={query}
+      pathname={PATHNAME}
+      noun={["property", "properties"]}
+      columns={columns}
+      getRowId={(property) => property.id}
+      toolbar={
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="w-full lg:max-w-sm">
+            <SearchInput
+              placeholder="Search title, address, area…"
+              aria-label="Search your properties"
+            />
+          </div>
+          <UrlTabs label="Filter by status" options={STATUS_TABS} />
+        </div>
+      }
+      empty={
+        filtered || searchTerm ? (
+          <FilteredEmptyState
+            noun="properties"
+            keys={["searchTerm", "status"]}
+          />
+        ) : (
+          <EmptyState
+            icon={Building2}
+            title="You haven't listed a property yet"
+            description="Add your first property with photos and rooms, then publish it so tenants can find it."
+            action={
+              <Link href={`${PATHNAME}/new`} className={buttonVariants()}>
+                <PlusSquare />
+                Add property
+              </Link>
+            }
+          />
+        )
+      }
+    />
   );
 }

@@ -7,6 +7,7 @@ import { FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  requiredNoteSchema,
   rescheduleSchema,
   type StatusNoteValues,
   statusNoteSchema,
@@ -17,6 +18,7 @@ import FormField from "./form-field";
 // The note (and, for a reschedule, the new time) that goes with a status change
 export default function StatusNoteForm({
   withDateTime = false,
+  noteRequired = false,
   noteLabel,
   notePlaceholder,
   submitLabel,
@@ -26,6 +28,7 @@ export default function StatusNoteForm({
   onSubmit,
 }: {
   withDateTime?: boolean;
+  noteRequired?: boolean;
   noteLabel: string;
   notePlaceholder?: string;
   submitLabel: string;
@@ -34,7 +37,11 @@ export default function StatusNoteForm({
   onCancel: () => void;
   onSubmit: (values: StatusNoteValues) => void;
 }) {
-  const schema = withDateTime ? rescheduleSchema : statusNoteSchema;
+  const schema = withDateTime
+    ? rescheduleSchema
+    : noteRequired
+      ? requiredNoteSchema
+      : statusNoteSchema;
   const form = useForm({
     defaultValues: { note: "", scheduledAt: "" },
     validators: { onChange: schema, onSubmit: schema },
@@ -80,7 +87,7 @@ export default function StatusNoteForm({
               field={field}
               id="status-note"
               label={noteLabel}
-              optional
+              optional={!noteRequired}
               description={`${field.state.value.trim().length} / 500`}
             >
               {(isInvalid) => (

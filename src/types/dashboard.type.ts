@@ -60,6 +60,11 @@ export interface ViewingListItem extends Viewing {
 
 export type RentalStatus = "PENDING" | "ACTIVE" | "COMPLETED" | "TERMINATED";
 
+// PATCH /rental/:id/status: COMPLETED ends an ACTIVE rental; TERMINATED ends a PENDING or ACTIVE one early
+export type RentalStatusPayload =
+  | { status: "COMPLETED" }
+  | { status: "TERMINATED"; reason: string };
+
 export interface Rental {
   id: string;
   monthlyRent: number;

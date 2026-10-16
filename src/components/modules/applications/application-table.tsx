@@ -1,28 +1,26 @@
 "use client";
 
-import { FileSearch, SearchX } from "lucide-react";
+import { FileSearch } from "lucide-react";
 import Link from "next/link";
-import DataTable, {
-  type DataTableColumn,
-} from "@/components/shared/data-table";
+import type { DataTableColumn } from "@/components/shared/data-table";
 import EmptyState from "@/components/shared/empty-state";
-import ListFooter from "@/components/shared/list-footer";
+import FilteredEmptyState from "@/components/shared/filtered-empty-state";
 import ListToolbar from "@/components/shared/list-toolbar";
+import ListView from "@/components/shared/list-view";
 import PersonCell from "@/components/shared/person-cell";
-import QueryError from "@/components/shared/query-error";
+import PropertyFilter from "@/components/shared/property-filter";
 import StatusBadge from "@/components/shared/status-badge";
-import TableSkeleton from "@/components/shared/table-skeleton";
 import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
 import { Button } from "@/components/ui/button";
 import {
+  type SortOptions,
   useApplications,
   useAuth,
-  useManagedProperties,
-  useUrlState,
+  useListParams,
 } from "@/hooks";
 import type { ApplicationListItem, ApplicationStatus } from "@/types";
-import { formatCurrency, formatDate, toPositiveInt } from "@/utils";
+import { formatCurrency, formatDate } from "@/utils";
 import ApplicationActions from "./application-actions";
 
 const PAGE_SIZE = 10;
@@ -35,12 +33,14 @@ const STATUS_TABS: { value: "" | ApplicationStatus; label: string }[] = [
   { value: "CANCELLED", label: "Withdrawn" },
   { value: "EXPIRED", label: "Expired" },
 ];
-const STATUSES = new Set<string>(STATUS_TABS.map((tab) => tab.value));
+const STATUSES = STATUS_TABS.map((tab) => tab.value).filter(
+  (value): value is ApplicationStatus => value !== "",
+);
 
-const SORTS = {
+const SORTS: SortOptions = {
   "": { sortBy: "createdAt", sortOrder: "desc" },
   "move-in": { sortBy: "moveInDate", sortOrder: "asc" },
-} as const;
+};
 
 function columns(isTenant: boolean): DataTableColumn<ApplicationListItem>[] {
   return [
@@ -150,119 +150,62 @@ function columns(isTenant: boolean): DataTableColumn<ApplicationListItem>[] {
 
 // Rental applications: owners approve or decline, tenants follow and withdraw their own
 export default function ApplicationTable({ pathname }: { pathname: string }) {
-  const { isTenant, isOwner } = useAuth();
-  const { get, clear } = useUrlState();
-  const status = STATUSES.has(get("status"))
-    ? (get("status") as ApplicationStatus | "")
-    : "";
-  const sort = get("sort") === "move-in" ? "move-in" : "";
-  const propertyId = get("propertyId");
-  const page = toPositiveInt(get("page"), 1);
-  const filtered = Boolean(status || propertyId);
-
+  const { isTenant } = useAuth();
+  const { filtered, ...params } = useListParams({
+    statuses: STATUSES,
+    sorts: SORTS,
+  });
   const query = useApplications(
-    {
-      status: status || undefined,
-      propertyId: propertyId || undefined,
-      page,
-      limit: PAGE_SIZE,
-      ...SORTS[sort],
-    },
+    { ...params, limit: PAGE_SIZE },
     { keepPrevious: true },
   );
-  const properties = useManagedProperties({ limit: 100 }, { enabled: isOwner });
-
-  const toolbar = (
-    <ListToolbar
-      tabs={<UrlTabs label="Filter by status" options={STATUS_TABS} />}
-    >
-      {isOwner && (
-        <UrlSelect
-          urlKey="propertyId"
-          label="Filter by property"
-          className="sm:w-60"
-          options={[
-            { value: "", label: "All properties" },
-            ...(properties.data?.data ?? []).map((property) => ({
-              value: property.id,
-              label: property.title,
-            })),
-          ]}
-        />
-      )}
-      <UrlSelect
-        urlKey="sort"
-        label="Sort"
-        className="sm:w-48"
-        options={[
-          { value: "", label: "Newest first" },
-          { value: "move-in", label: "Move-in date" },
-        ]}
-      />
-    </ListToolbar>
-  );
-
-  if (query.isPending) return <TableSkeleton />;
 
   return (
-    <div className="space-y-4">
-      {toolbar}
-      {query.isError ? (
-        <QueryError error={query.error} onRetry={() => query.refetch()} />
-      ) : (
-        <>
-          <div
-            className={
-              query.isPlaceholderData ? "opacity-60 transition-opacity" : ""
-            }
-          >
-            <DataTable
-              columns={columns(isTenant)}
-              rows={query.data.data}
-              getRowId={(application) => application.id}
-              empty={
-                filtered ? (
-                  <EmptyState
-                    icon={SearchX}
-                    title="No applications match"
-                    description="Try another status or property."
-                    action={
-                      <Button
-                        variant="outline"
-                        onClick={() => clear(["status", "propertyId"])}
-                      >
-                        Clear filters
-                      </Button>
-                    }
-                  />
-                ) : (
-                  <EmptyState
-                    icon={FileSearch}
-                    title="No applications yet"
-                    description={
-                      isTenant
-                        ? "Apply for a room from its page and follow the answer here."
-                        : "When tenants apply for your rooms, you'll review them here."
-                    }
-                    action={
-                      isTenant ? (
-                        <Button render={<Link href="/rooms" />}>
-                          Browse rooms
-                        </Button>
-                      ) : undefined
-                    }
-                  />
-                )
-              }
-            />
-          </div>
-          <ListFooter
-            meta={query.data.meta}
-            pathname={pathname}
-            noun={["application", "applications"]}
+    <ListView
+      query={query}
+      pathname={pathname}
+      noun={["application", "applications"]}
+      columns={columns(isTenant)}
+      getRowId={(application) => application.id}
+      toolbar={
+        <ListToolbar
+          tabs={<UrlTabs label="Filter by status" options={STATUS_TABS} />}
+        >
+          <PropertyFilter />
+          <UrlSelect
+            urlKey="sort"
+            label="Sort"
+            className="sm:w-48"
+            options={[
+              { value: "", label: "Newest first" },
+              { value: "move-in", label: "Move-in date" },
+            ]}
           />
-        </>
-      )}
-    </div>
+        </ListToolbar>
+      }
+      empty={
+        filtered ? (
+          <FilteredEmptyState
+            noun="applications"
+            keys={["status", "propertyId"]}
+          />
+        ) : (
+          <EmptyState
+            icon={FileSearch}
+            title="No applications yet"
+            description={
+              isTenant
+                ? "Apply for a room from its page and follow the answer here."
+                : "When tenants apply for your rooms, you'll review them here."
+            }
+            action={
+              isTenant ? (
+                <Button render={<Link href="/rooms" />}>Browse rooms</Button>
+              ) : undefined
+            }
+          />
+        )
+      }
+    />
   );
 }
