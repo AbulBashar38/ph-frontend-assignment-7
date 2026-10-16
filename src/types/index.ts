@@ -1,3 +1,4 @@
+export * from "./admin.type";
 export * from "./api.type";
 export * from "./application.type";
 export * from "./auth.type";

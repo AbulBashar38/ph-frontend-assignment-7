@@ -75,7 +75,7 @@ export default function RentalActions({ rental }: { rental: Rental }) {
         onOpenChange={(next) => !next && setDialog(null)}
         title="End this rental early?"
         description="The room is freed and unpaid bills are cancelled. The other side is told why."
-        noteRequired
+        noteMinLength={3}
         noteLabel="Reason"
         notePlaceholder="e.g. The tenant is relocating for work"
         submitLabel="End rental"

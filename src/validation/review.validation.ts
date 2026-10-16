@@ -14,12 +14,13 @@ export const rescheduleSchema = z.object({
 
 export type StatusNoteValues = z.infer<typeof statusNoteSchema>;
 
-// Ending a rental early needs a reason (backend: 3–500 characters)
-export const requiredNoteSchema = z.object({
-  note: z
-    .string()
-    .trim()
-    .min(3, "Give a short reason (at least 3 characters)")
-    .max(500, "Keep it under 500 characters"),
-  scheduledAt: z.string(),
-});
+// A required reason (ending a rental: 3+, blocking a user: 3+, suspending a listing: 5+ characters)
+export const requiredNoteSchema = (min: number) =>
+  z.object({
+    note: z
+      .string()
+      .trim()
+      .min(min, `Give a short reason (at least ${min} characters)`)
+      .max(500, "Keep it under 500 characters"),
+    scheduledAt: z.string(),
+  });

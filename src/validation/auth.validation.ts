@@ -122,3 +122,17 @@ export const profileSchema = z.object({
 });
 
 export type ProfileValues = z.infer<typeof profileSchema>;
+
+// POST /user/admin: same name, email, phone and password rules as registration
+export const createAdminSchema = z.object({
+  name: nameSchema,
+  email: emailSchema,
+  phone: z
+    .string()
+    .trim()
+    .refine(
+      (value) => !value || /^\+?[0-9]{10,15}$/.test(value),
+      "Phone number must be 10-15 digits",
+    ),
+  password: passwordSchema,
+});

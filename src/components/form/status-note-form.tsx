@@ -18,7 +18,7 @@ import FormField from "./form-field";
 // The note (and, for a reschedule, the new time) that goes with a status change
 export default function StatusNoteForm({
   withDateTime = false,
-  noteRequired = false,
+  noteMinLength,
   noteLabel,
   notePlaceholder,
   submitLabel,
@@ -28,7 +28,8 @@ export default function StatusNoteForm({
   onSubmit,
 }: {
   withDateTime?: boolean;
-  noteRequired?: boolean;
+  // Set to make the note required with this many characters
+  noteMinLength?: number;
   noteLabel: string;
   notePlaceholder?: string;
   submitLabel: string;
@@ -39,8 +40,8 @@ export default function StatusNoteForm({
 }) {
   const schema = withDateTime
     ? rescheduleSchema
-    : noteRequired
-      ? requiredNoteSchema
+    : noteMinLength
+      ? requiredNoteSchema(noteMinLength)
       : statusNoteSchema;
   const form = useForm({
     defaultValues: { note: "", scheduledAt: "" },
@@ -87,7 +88,7 @@ export default function StatusNoteForm({
               field={field}
               id="status-note"
               label={noteLabel}
-              optional={!noteRequired}
+              optional={!noteMinLength}
               description={`${field.state.value.trim().length} / 500`}
             >
               {(isInvalid) => (

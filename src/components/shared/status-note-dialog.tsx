@@ -24,7 +24,7 @@ export default function StatusNoteDialog({
   title: string;
   description: ReactNode;
   withDateTime?: boolean;
-  noteRequired?: boolean;
+  noteMinLength?: number;
   noteLabel: string;
   notePlaceholder?: string;
   submitLabel: string;
