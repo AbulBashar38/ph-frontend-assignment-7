@@ -1,6 +1,7 @@
 export * from "./api.type";
 export * from "./application.type";
 export * from "./auth.type";
+export * from "./contact.type";
 export * from "./property.type";
 export * from "./room.type";
 export * from "./sidebar.type";
