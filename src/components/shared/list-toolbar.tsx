@@ -5,12 +5,12 @@ export default function ListToolbar({
   tabs,
   children,
 }: {
-  tabs: ReactNode;
+  tabs?: ReactNode;
   children?: ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-center 2xl:justify-between">
-      <div className="min-w-0">{tabs}</div>
+      {tabs && <div className="min-w-0">{tabs}</div>}
       {children && (
         <div className="grid gap-3 sm:flex sm:flex-wrap 2xl:flex-nowrap">
           {children}
