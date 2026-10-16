@@ -9,11 +9,14 @@ export default function SectionCard({
   description,
   href,
   linkLabel = "View all",
+  action,
   children,
   className,
 }: {
   title: string;
-  description?: string;
+  description?: ReactNode;
+  // A button in the header (when there's no href)
+  action?: ReactNode;
   href?: string;
   linkLabel?: string;
   children: ReactNode;
@@ -21,13 +24,16 @@ export default function SectionCard({
 }) {
   return (
     <section className={cn("rounded-2xl border bg-card", className)}>
-      <div className="flex items-start justify-between gap-3 border-b px-5 py-4">
+      <div className="flex items-center justify-between gap-3 border-b px-5 py-4">
         <div>
           <h2 className="font-heading text-base font-semibold">{title}</h2>
           {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {description}
+            </p>
           )}
         </div>
+        {action && !href && <div className="shrink-0">{action}</div>}
         {href && (
           <Link
             href={href}

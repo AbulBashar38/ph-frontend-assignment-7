@@ -5,14 +5,13 @@ import {
   DoorOpen,
   ExternalLink,
   EyeOff,
+  ImagePlus,
   MoreHorizontal,
   PencilLine,
   Send,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
-import ConfirmDialog from "@/components/shared/confirm-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,16 +21,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useArchiveProperty, useUpdatePropertyStatus } from "@/hooks";
-import type { ManagedProperty, ManualPropertyStatus } from "@/types";
-import { getErrorMessage } from "@/utils";
-
-// What's still missing before a listing can go live (the backend needs a photo and a room)
-export function publishBlocker(property: ManagedProperty) {
-  if (property.images.length === 0) return "Add a photo first";
-  if (property.rooms.length === 0) return "Add a room first";
-  return null;
-}
+import type { ManagedProperty } from "@/types";
+import RemovePropertyDialog from "./remove-property-dialog";
+import { usePropertyActions } from "./use-property-actions";
 
 // Row menu: only the actions the listing's current status allows
 export default function PropertyRowActions({
@@ -39,27 +31,9 @@ export default function PropertyRowActions({
 }: {
   property: ManagedProperty;
 }) {
-  const [confirmArchive, setConfirmArchive] = useState(false);
-  const statusMutation = useUpdatePropertyStatus();
-  const archiveMutation = useArchiveProperty();
-
-  const canPublish =
-    property.status === "DRAFT" || property.status === "INACTIVE";
-  const blocker = canPublish ? publishBlocker(property) : null;
-
-  const changeStatus = (status: ManualPropertyStatus) =>
-    statusMutation.mutate(
-      { id: property.id, status },
-      {
-        onSuccess: () =>
-          toast.success(
-            status === "PUBLISHED"
-              ? `"${property.title}" is now live`
-              : `"${property.title}" is hidden from search`,
-          ),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      },
-    );
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const actions = usePropertyActions(property);
+  const manage = `/owner/properties/${property.id}`;
 
   return (
     <>
@@ -77,17 +51,17 @@ export default function PropertyRowActions({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuGroup>
-            <DropdownMenuItem
-              render={<Link href={`/owner/properties/${property.id}`} />}
-            >
+            <DropdownMenuItem render={<Link href={manage} />}>
               <PencilLine />
-              Edit details & photos
+              Edit details
             </DropdownMenuItem>
-            <DropdownMenuItem
-              render={<Link href={`/owner/properties/${property.id}#rooms`} />}
-            >
+            <DropdownMenuItem render={<Link href={`${manage}?tab=photos`} />}>
+              <ImagePlus />
+              Photos
+            </DropdownMenuItem>
+            <DropdownMenuItem render={<Link href={`${manage}?tab=rooms`} />}>
               <DoorOpen />
-              Manage rooms
+              Rooms
             </DropdownMenuItem>
             {property.status === "PUBLISHED" && (
               <DropdownMenuItem
@@ -99,21 +73,23 @@ export default function PropertyRowActions({
             )}
           </DropdownMenuGroup>
 
-          {(canPublish || property.status === "PUBLISHED") && (
+          {(actions.canPublish || actions.canHide) && (
             <>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                {canPublish && (
+                {actions.canPublish && (
                   <DropdownMenuItem
-                    disabled={Boolean(blocker)}
-                    onClick={() => changeStatus("PUBLISHED")}
+                    disabled={Boolean(actions.blocker)}
+                    onClick={actions.publish}
                   >
                     <Send />
-                    {blocker ? `Publish (${blocker.toLowerCase()})` : "Publish"}
+                    {actions.blocker
+                      ? `Publish (${actions.blocker.toLowerCase()})`
+                      : "Publish"}
                   </DropdownMenuItem>
                 )}
-                {property.status === "PUBLISHED" && (
-                  <DropdownMenuItem onClick={() => changeStatus("INACTIVE")}>
+                {actions.canHide && (
+                  <DropdownMenuItem onClick={actions.hide}>
                     <EyeOff />
                     Hide from search
                   </DropdownMenuItem>
@@ -125,7 +101,7 @@ export default function PropertyRowActions({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             variant="destructive"
-            onClick={() => setConfirmArchive(true)}
+            onClick={() => setConfirmRemove(true)}
           >
             <Archive />
             Remove listing
@@ -133,23 +109,12 @@ export default function PropertyRowActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ConfirmDialog
-        open={confirmArchive}
-        onOpenChange={setConfirmArchive}
-        title={`Remove "${property.title}"?`}
-        description="The listing and its rooms leave search, and open viewing requests and applications are cancelled. Listings with reserved or occupied rooms can't be removed."
-        confirmLabel="Remove listing"
-        destructive
-        pending={archiveMutation.isPending}
-        onConfirm={() =>
-          archiveMutation.mutate(property.id, {
-            onSuccess: () => {
-              toast.success(`"${property.title}" was removed`);
-              setConfirmArchive(false);
-            },
-            onError: (error) => toast.error(getErrorMessage(error)),
-          })
-        }
+      <RemovePropertyDialog
+        open={confirmRemove}
+        onOpenChange={setConfirmRemove}
+        title={property.title}
+        pending={actions.archiving}
+        onConfirm={() => actions.archive(() => setConfirmRemove(false))}
       />
     </>
   );

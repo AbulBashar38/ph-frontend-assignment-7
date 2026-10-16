@@ -2,16 +2,17 @@ import { ChevronDown } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
-// The browser's own <select>, styled like Input: best on phones (native picker) and needs no JavaScript
+// The browser's own <select>, styled like Input: best on phones (native picker) and needs no JavaScript.
+// className is for layout (width, margin) and goes on the wrapper, so the chevron stays inside the box.
 function NativeSelect({ className, ...props }: React.ComponentProps<"select">) {
   return (
-    <div data-slot="native-select-wrapper" className="relative w-full">
+    <div
+      data-slot="native-select-wrapper"
+      className={cn("relative w-full", className)}
+    >
       <select
         data-slot="native-select"
-        className={cn(
-          "h-12 w-full min-w-0 cursor-pointer appearance-none rounded-lg border border-input bg-transparent py-1 pr-10 pl-3.5 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm",
-          className,
-        )}
+        className="h-12 w-full min-w-0 cursor-pointer appearance-none rounded-lg border border-input bg-transparent py-1 pr-10 pl-3.5 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 md:text-sm"
         {...props}
       />
       <ChevronDown

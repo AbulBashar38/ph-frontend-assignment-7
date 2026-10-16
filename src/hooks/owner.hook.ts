@@ -16,6 +16,7 @@ import {
 import type {
   ApiResponse,
   ManagedProperty,
+  ManagedRoom,
   ManualPropertyStatus,
   ManualRoomStatus,
   PropertyPayload,
@@ -150,12 +151,37 @@ export function useUpdateRoom() {
   });
 }
 
+// Optimistic like the property status: the select shows the new value at once
 export function useUpdateRoomStatus() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateListings();
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: ManualRoomStatus }) =>
       updateRoomStatus(id, status),
-    onSuccess: invalidate,
+    onMutate: async ({ id, status }) => {
+      const queryKey = ["managed-rooms"];
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueriesData<ApiResponse<ManagedRoom[]>>({
+        queryKey,
+      });
+      queryClient.setQueriesData<ApiResponse<ManagedRoom[]>>(
+        { queryKey },
+        (old) =>
+          old && {
+            ...old,
+            data: old.data.map((room) =>
+              room.id === id ? { ...room, status } : room,
+            ),
+          },
+      );
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      for (const [key, data] of context?.previous ?? []) {
+        queryClient.setQueryData(key, data);
+      }
+    },
+    onSettled: invalidate,
   });
 }
 
