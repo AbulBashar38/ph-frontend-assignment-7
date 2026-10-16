@@ -6,6 +6,7 @@ export * from "./dashboard.type";
 export * from "./notification.type";
 export * from "./property.type";
 export * from "./room.type";
+export * from "./roommate.type";
 export * from "./sidebar.type";
 export * from "./user.type";
 export * from "./viewing.type";

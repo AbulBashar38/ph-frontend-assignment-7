@@ -31,8 +31,8 @@ export default function DashboardHeader({ userRole }: { userRole: UserRole }) {
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-6" />
       <p className="min-w-0 flex-1 truncate font-heading text-lg font-semibold">
-        {current?.title ??
-          EXTRA_TITLES.find(([prefix]) => pathname.startsWith(prefix))?.[1] ??
+        {EXTRA_TITLES.find(([prefix]) => pathname.startsWith(prefix))?.[1] ??
+          current?.title ??
           "Dashboard"}
       </p>
       <NotificationBell allHref={`${home}/notifications`} />
