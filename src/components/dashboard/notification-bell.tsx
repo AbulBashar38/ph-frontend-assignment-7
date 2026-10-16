@@ -1,8 +1,9 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
 import { Bell, CheckCheck } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import NotificationItem from "@/components/modules/notifications/notification-item";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,24 +14,22 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useMarkAllNotificationsRead,
-  useMarkNotificationRead,
   useNotifications,
   useUnreadNotificationCount,
 } from "@/hooks";
-import { cn } from "@/lib/utils";
 
 // Bell with the unread count; opens the latest notifications (marking read updates instantly)
 export default function NotificationBell({ allHref }: { allHref: string }) {
   const { data: countData } = useUnreadNotificationCount();
   const { data, isPending } = useNotifications({ limit: 6 });
-  const { mutate: markRead } = useMarkNotificationRead();
+  const [open, setOpen] = useState(false);
   const { mutate: markAllRead } = useMarkAllNotificationsRead();
 
   const unread = countData?.data.unreadCount ?? 0;
   const notifications = data?.data ?? [];
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
         render={
           <Button
@@ -87,37 +86,11 @@ export default function NotificationBell({ allHref }: { allHref: string }) {
             <ul className="divide-y">
               {notifications.map((notification) => (
                 <li key={notification.id}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !notification.isRead && markRead(notification.id)
-                    }
-                    className={cn(
-                      "flex w-full gap-3 px-4 py-3 text-left transition-colors hover:bg-muted/60",
-                      !notification.isRead && "bg-accent/40",
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "mt-1.5 size-2 shrink-0 rounded-full",
-                        notification.isRead ? "bg-transparent" : "bg-primary",
-                      )}
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium">
-                        {notification.title}
-                      </span>
-                      <span className="mt-0.5 line-clamp-2 block text-xs text-muted-foreground">
-                        {notification.message}
-                      </span>
-                      <span className="mt-1 block text-[11px] text-muted-foreground">
-                        {formatDistanceToNow(new Date(notification.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                    </span>
-                  </button>
+                  <NotificationItem
+                    notification={notification}
+                    compact
+                    onOpen={() => setOpen(false)}
+                  />
                 </li>
               ))}
             </ul>
@@ -127,6 +100,7 @@ export default function NotificationBell({ allHref }: { allHref: string }) {
         <div className="border-t p-2">
           <Link
             href={allHref}
+            onClick={() => setOpen(false)}
             className="block rounded-lg px-3 py-2 text-center text-sm font-medium text-primary hover:bg-muted"
           >
             See all notifications

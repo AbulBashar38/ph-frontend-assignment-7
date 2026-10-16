@@ -1,4 +1,5 @@
 import {
+  keepPreviousData,
   type QueryKey,
   useMutation,
   useQuery,
@@ -19,10 +20,14 @@ import type {
 const LIST_KEY = ["notifications"];
 const COUNT_KEY = ["notifications", "unread-count"];
 
-export function useNotifications(params?: NotificationQueryParams) {
+export function useNotifications(
+  params?: NotificationQueryParams,
+  options?: { keepPrevious?: boolean },
+) {
   return useQuery({
     queryKey: [...LIST_KEY, params],
     queryFn: () => getNotifications(params),
+    placeholderData: options?.keepPrevious ? keepPreviousData : undefined,
   });
 }
 
