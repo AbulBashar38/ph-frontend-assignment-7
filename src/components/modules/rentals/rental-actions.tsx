@@ -6,12 +6,13 @@ import { toast } from "sonner";
 import ConfirmDialog from "@/components/shared/confirm-dialog";
 import StatusNoteDialog from "@/components/shared/status-note-dialog";
 import { Button } from "@/components/ui/button";
-import { useUpdateRentalStatus } from "@/hooks";
+import { useAuth, useUpdateRentalStatus } from "@/hooks";
 import type { Rental, RentalStatusPayload } from "@/types";
 import { getErrorMessage } from "@/utils";
 
 // ACTIVE → COMPLETED (moved out); PENDING | ACTIVE → TERMINATED (ended early, with a reason). Either side may end it.
 export default function RentalActions({ rental }: { rental: Rental }) {
+  const { isTenant } = useAuth();
   const mutation = useUpdateRentalStatus();
   const [dialog, setDialog] = useState<"complete" | "terminate" | null>(null);
 
@@ -59,7 +60,7 @@ export default function RentalActions({ rental }: { rental: Rental }) {
         open={dialog === "complete"}
         onOpenChange={(next) => !next && setDialog(null)}
         title="Mark this rental as finished?"
-        description={`Use this when the tenant has moved out of ${rental.room.name}. The room becomes available again and no more rent is billed.`}
+        description={`Use this when ${isTenant ? "you've" : "the tenant has"} moved out of ${rental.room.name}. The room becomes available again and no more rent is billed.`}
         confirmLabel="Finish rental"
         pending={mutation.isPending}
         onConfirm={() =>

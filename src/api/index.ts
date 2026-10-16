@@ -4,6 +4,7 @@ export * from "./contact.api";
 export * from "./dashboard.api";
 export * from "./notification.api";
 export * from "./owner.api";
+export * from "./payment.api";
 export * from "./property.api";
 export * from "./rental.api";
 export * from "./room.api";

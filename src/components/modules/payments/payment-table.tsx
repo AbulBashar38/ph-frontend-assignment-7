@@ -1,7 +1,6 @@
 "use client";
 
 import { Receipt } from "lucide-react";
-import type { ReactNode } from "react";
 import type { DataTableColumn } from "@/components/shared/data-table";
 import EmptyState from "@/components/shared/empty-state";
 import FilteredEmptyState from "@/components/shared/filtered-empty-state";
@@ -16,6 +15,7 @@ import { type SortOptions, useAuth, useListParams, usePayments } from "@/hooks";
 import type { Payment, PaymentStatus } from "@/types";
 import { formatCurrency, formatDate } from "@/utils";
 import ReceiptButton from "./receipt-button";
+import TenantPaymentActions from "./tenant-payment-actions";
 
 const PAGE_SIZE = 10;
 
@@ -37,10 +37,7 @@ const SORTS: SortOptions = {
   amount: { sortBy: "amount", sortOrder: "desc" },
 };
 
-function columns(
-  isTenant: boolean,
-  renderActions: (payment: Payment) => ReactNode,
-): DataTableColumn<Payment>[] {
+function columns(isTenant: boolean): DataTableColumn<Payment>[] {
   return [
     {
       key: "person",
@@ -119,24 +116,20 @@ function columns(
       key: "actions",
       header: <span className="sr-only">Actions</span>,
       className: "text-right",
-      cell: renderActions,
+      cell: (payment) =>
+        isTenant ? (
+          <TenantPaymentActions payment={payment} />
+        ) : payment.status === "PAID" ? (
+          <ReceiptButton payment={payment} />
+        ) : (
+          <span className="text-sm text-muted-foreground">—</span>
+        ),
     },
   ];
 }
 
-// Rent bills of the signed-in user; tenants get a "Pay" action through renderActions
-export default function PaymentTable({
-  pathname,
-  renderActions = (payment) =>
-    payment.status === "PAID" ? (
-      <ReceiptButton payment={payment} />
-    ) : (
-      <span className="text-sm text-muted-foreground">—</span>
-    ),
-}: {
-  pathname: string;
-  renderActions?: (payment: Payment) => ReactNode;
-}) {
+// Rent bills of the signed-in user: tenants can pay due ones, everyone gets receipts for paid ones
+export default function PaymentTable({ pathname }: { pathname: string }) {
   const { isTenant } = useAuth();
   const { filtered, ...params } = useListParams({
     statuses: STATUSES,
@@ -152,7 +145,7 @@ export default function PaymentTable({
       query={query}
       pathname={pathname}
       noun={["payment", "payments"]}
-      columns={columns(isTenant, renderActions)}
+      columns={columns(isTenant)}
       getRowId={(payment) => payment.id}
       toolbar={
         <ListToolbar

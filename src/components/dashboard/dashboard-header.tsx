@@ -10,6 +10,11 @@ import NotificationBell from "./notification-bell";
 import UserMenu from "./user-menu";
 
 // Sticky top bar: sidebar toggle, the current section's name, notifications and the account menu
+// Pages that aren't in a sidebar (Stripe's return pages)
+const EXTRA_TITLES: [prefix: string, title: string][] = [
+  ["/payment", "Payments"],
+];
+
 export default function DashboardHeader({ userRole }: { userRole: UserRole }) {
   const pathname = usePathname();
   const home = getDashboardPath(userRole);
@@ -26,7 +31,9 @@ export default function DashboardHeader({ userRole }: { userRole: UserRole }) {
       <SidebarTrigger className="-ml-1" />
       <Separator orientation="vertical" className="h-6" />
       <p className="min-w-0 flex-1 truncate font-heading text-lg font-semibold">
-        {current?.title ?? "Dashboard"}
+        {current?.title ??
+          EXTRA_TITLES.find(([prefix]) => pathname.startsWith(prefix))?.[1] ??
+          "Dashboard"}
       </p>
       <NotificationBell allHref={`${home}/notifications`} />
       <UserMenu />

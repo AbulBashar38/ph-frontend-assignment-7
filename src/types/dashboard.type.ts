@@ -91,6 +91,20 @@ export interface Rental {
 
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "CANCELLED";
 
+// Bills in these statuses can still be paid, while their rental is PENDING or ACTIVE
+export const PAYABLE_STATUSES: PaymentStatus[] = [
+  "PENDING",
+  "FAILED",
+  "CANCELLED",
+];
+
+// POST /payment/:id/checkout
+export interface CheckoutSession {
+  paymentUrl: string;
+  sessionId: string;
+  expiresAt: string;
+}
+
 export interface Payment {
   id: string;
   periodNumber: number;

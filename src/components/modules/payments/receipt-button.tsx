@@ -9,12 +9,18 @@ import type { Payment } from "@/types";
 import { getErrorMessage } from "@/utils";
 
 // Downloads the PDF receipt of a paid bill
-export default function ReceiptButton({ payment }: { payment: Payment }) {
+export default function ReceiptButton({
+  payment,
+  size = "xs",
+}: {
+  payment: Payment;
+  size?: "xs" | "default";
+}) {
   const download = useDownloadReceipt();
 
   return (
     <Button
-      size="xs"
+      size={size}
       variant="outline"
       disabled={download.isPending}
       onClick={() =>
