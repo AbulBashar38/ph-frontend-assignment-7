@@ -1,8 +1,10 @@
 import type { QueryParams } from "./api.type";
 import type { Application, ApplicationStatus } from "./application.type";
 import type {
+  Amenity,
   Property,
   PropertyStatus,
+  PropertyType,
   RoomStatus,
   RoomType,
 } from "./property.type";
@@ -122,8 +124,39 @@ export interface ManagedProperty extends Property {
 export interface ManagedRoom extends Omit<Room, "property"> {
   currentOccupants: number;
   propertyId: string;
-  property: { id: string; title: string };
+  property: {
+    id: string;
+    title: string;
+    status: PropertyStatus;
+    city: string;
+    area: string;
+    ownerId: string;
+  };
 }
+
+// Payloads for the owner's property and room forms (dates as ISO strings)
+export interface PropertyPayload {
+  title: string;
+  description: string;
+  propertyType: PropertyType;
+  address: string;
+  city: string;
+  area: string;
+  amenities: Amenity[];
+}
+
+export interface RoomPayload {
+  name: string;
+  roomType: RoomType;
+  monthlyRent: number;
+  maxOccupants: number;
+  description?: string | null;
+  amenities: Amenity[];
+  availableFrom?: string | null;
+}
+
+export type ManualPropertyStatus = "PUBLISHED" | "INACTIVE" | "SUSPENDED";
+export type ManualRoomStatus = "AVAILABLE" | "UNAVAILABLE" | "MAINTENANCE";
 
 export interface StatusQueryParams<TStatus extends string> extends QueryParams {
   status?: TStatus;

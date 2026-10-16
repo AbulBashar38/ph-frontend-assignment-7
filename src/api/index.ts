@@ -3,6 +3,7 @@ export * from "./auth.api";
 export * from "./contact.api";
 export * from "./dashboard.api";
 export * from "./notification.api";
+export * from "./owner.api";
 export * from "./property.api";
 export * from "./room.api";
 export * from "./viewing.api";

@@ -7,6 +7,7 @@ export * from "./dashboard.hook";
 export * from "./debounce.hook";
 export * from "./logout.hook";
 export * from "./notification.hook";
+export * from "./owner.hook";
 export * from "./property.hook";
 export * from "./url-state.hook";
 export * from "./use-mobile";
