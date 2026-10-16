@@ -14,6 +14,8 @@ import {
   updateRoomStatus,
 } from "@/api";
 import type {
+  ApiResponse,
+  ManagedProperty,
   ManualPropertyStatus,
   ManualRoomStatus,
   PropertyPayload,
@@ -65,7 +67,9 @@ export function useUpdateProperty() {
   });
 }
 
+// Optimistic: the new status shows in every cached list at once and rolls back if the API refuses
 export function useUpdatePropertyStatus() {
+  const queryClient = useQueryClient();
   const invalidate = useInvalidateListings();
   return useMutation({
     mutationFn: ({
@@ -77,7 +81,30 @@ export function useUpdatePropertyStatus() {
       status: ManualPropertyStatus;
       reason?: string;
     }) => updatePropertyStatus(id, { status, reason }),
-    onSuccess: invalidate,
+    onMutate: async ({ id, status }) => {
+      const queryKey = ["managed-properties"];
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueriesData<
+        ApiResponse<ManagedProperty[]>
+      >({ queryKey });
+      queryClient.setQueriesData<ApiResponse<ManagedProperty[]>>(
+        { queryKey },
+        (old) =>
+          old && {
+            ...old,
+            data: old.data.map((property) =>
+              property.id === id ? { ...property, status } : property,
+            ),
+          },
+      );
+      return { previous };
+    },
+    onError: (_error, _variables, context) => {
+      for (const [key, data] of context?.previous ?? []) {
+        queryClient.setQueryData(key, data);
+      }
+    },
+    onSettled: invalidate,
   });
 }
 

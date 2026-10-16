@@ -20,7 +20,7 @@ export default function UrlTabs({
       value={get(urlKey)}
       onValueChange={(value: string) => set({ [urlKey]: value })}
     >
-      <TabsList aria-label={label} className="max-w-full overflow-x-auto">
+      <TabsList aria-label={label} scroll>
         {options.map((option) => (
           <TabsTrigger key={option.value || "all"} value={option.value}>
             {option.label}

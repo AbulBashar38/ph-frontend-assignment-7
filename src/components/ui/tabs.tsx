@@ -32,9 +32,15 @@ const tabsListVariants = cva(
         // Rounded segmented control; the active tab fills with the brand color
         pill: "rounded-full border bg-card shadow-xs",
       },
+      // Many tabs on a narrow screen: start-aligned so the first tab never gets cut off, and swipeable
+      scroll: {
+        true: "max-w-full justify-start overflow-x-auto [scrollbar-width:none]",
+        false: "",
+      },
     },
     defaultVariants: {
       variant: "default",
+      scroll: false,
     },
   },
 );
@@ -42,13 +48,14 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  scroll = false,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
       data-variant={variant}
-      className={cn(tabsListVariants({ variant }), className)}
+      className={cn(tabsListVariants({ variant, scroll }), className)}
       {...props}
     />
   );

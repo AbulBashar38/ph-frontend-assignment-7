@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { type UseQueryOptions, useQuery } from "@tanstack/react-query";
 import {
   getApplications,
   getManagedProperties,
@@ -9,7 +9,9 @@ import {
   getViewings,
 } from "@/api";
 import type {
+  ApiResponse,
   ApplicationQueryParams,
+  ManagedProperty,
   ManagedPropertyQueryParams,
   ManagedRoomQueryParams,
   PaymentQueryParams,
@@ -45,10 +47,16 @@ export function usePayments(params?: PaymentQueryParams) {
   });
 }
 
-export function useManagedProperties(params?: ManagedPropertyQueryParams) {
+type ManagedPropertiesResponse = ApiResponse<ManagedProperty[]>;
+
+export function useManagedProperties(
+  params?: ManagedPropertyQueryParams,
+  options?: Pick<UseQueryOptions<ManagedPropertiesResponse>, "placeholderData">,
+) {
   return useQuery({
     queryKey: ["managed-properties", params],
     queryFn: () => getManagedProperties(params),
+    ...options,
   });
 }
 
