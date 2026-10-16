@@ -7,4 +7,5 @@ export * from "./owner.api";
 export * from "./property.api";
 export * from "./rental.api";
 export * from "./room.api";
+export * from "./user.api";
 export * from "./viewing.api";

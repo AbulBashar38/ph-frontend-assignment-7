@@ -171,18 +171,23 @@ export function useDeleteRoomImage() {
   });
 }
 
-// Runs an upload that reports progress (0–100), then refreshes listing data
+// Runs an upload that reports progress (0–100), then refreshes the affected caches (listings by default)
 export function useUploadWithProgress<TArgs extends unknown[], TResult>(
   upload: (...args: [...TArgs, (percent: number) => void]) => Promise<TResult>,
+  refreshKeys: string[][] = LISTING_KEYS,
 ) {
-  const invalidate = useInvalidateListings();
+  const queryClient = useQueryClient();
   const [progress, setProgress] = useState<number | null>(null);
 
   const start = async (...args: TArgs) => {
     setProgress(0);
     try {
       const result = await upload(...args, setProgress);
-      await invalidate();
+      await Promise.all(
+        refreshKeys.map((queryKey) =>
+          queryClient.invalidateQueries({ queryKey }),
+        ),
+      );
       return result;
     } finally {
       setProgress(null);

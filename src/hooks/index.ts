@@ -14,4 +14,5 @@ export * from "./property.hook";
 export * from "./rental.hook";
 export * from "./url-state.hook";
 export * from "./use-mobile";
+export * from "./user.hook";
 export * from "./viewing.hook";

@@ -29,3 +29,12 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+// PATCH /user/:id: tenant-only (occupation, gender) and owner-only (address) fields; null clears them
+export interface UpdateProfilePayload {
+  name?: string;
+  phone?: string;
+  occupation?: string | null;
+  gender?: Gender | null;
+  address?: string | null;
+}
