@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useLogoutAction } from "@/hooks";
-import { formatEnum, getDashboardPath } from "@/utils";
+import { formatEnum, getDashboardPath, getInitials } from "@/utils";
 
 export default function UserMenu() {
   const { user } = useAuth();
@@ -21,12 +21,7 @@ export default function UserMenu() {
 
   if (!user) return null;
 
-  const initials = user.name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+  const initials = getInitials(user.name);
 
   return (
     <DropdownMenu>

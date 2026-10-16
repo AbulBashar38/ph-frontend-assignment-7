@@ -2,6 +2,7 @@
 
 import { Avatar as AvatarPrimitive } from "@base-ui/react/avatar";
 import { cn } from "cn";
+import NextImage from "next/image";
 import type * as React from "react";
 
 function Avatar({
@@ -24,13 +25,31 @@ function Avatar({
   );
 }
 
-function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+// Rendered through next/image (optimized, lazy); Base UI still swaps in the fallback until it loads
+function AvatarImage({
+  className,
+  src,
+  alt = "",
+  ...props
+}: AvatarPrimitive.Image.Props) {
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
+      src={src}
+      alt={alt}
       className={cn(
         "aspect-square size-full rounded-full object-cover",
         className,
+      )}
+      render={(renderProps) => (
+        <NextImage
+          src={typeof src === "string" ? src : ""}
+          alt={alt}
+          width={80}
+          height={80}
+          className={renderProps.className}
+          style={renderProps.style}
+        />
       )}
       {...props}
     />
