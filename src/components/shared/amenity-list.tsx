@@ -38,6 +38,16 @@ export const AMENITY_ICONS: Record<Amenity, LucideIcon> = {
   ATTACHED_BATHROOM: Bath,
 };
 
+// Acronyms and brand spellings that formatEnum would get wrong ("Ac", "Wifi")
+const AMENITY_LABELS: Partial<Record<Amenity, string>> = {
+  WIFI: "Wi-Fi",
+  AC: "AC",
+  CCTV: "CCTV",
+};
+
+export const amenityLabel = (amenity: Amenity) =>
+  AMENITY_LABELS[amenity] ?? formatEnum(amenity);
+
 // Every amenity the backend knows, in display order (used by filters)
 export const ALL_AMENITIES = Object.keys(AMENITY_ICONS) as Amenity[];
 
@@ -59,7 +69,7 @@ export default function AmenityList({ amenities }: { amenities: Amenity[] }) {
             className="flex items-center gap-3 rounded-xl border bg-card px-3 py-2.5 text-sm"
           >
             <Icon className="size-4 shrink-0 text-primary" />
-            {formatEnum(amenity)}
+            {amenityLabel(amenity)}
           </li>
         );
       })}

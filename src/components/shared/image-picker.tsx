@@ -2,9 +2,10 @@
 
 import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef } from "react";
+import { useRef } from "react";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
+import { useObjectUrls } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { formatFileSize } from "@/utils";
 
@@ -28,18 +29,7 @@ export default function ImagePicker({
   disabled?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const previews = useMemo(
-    () => files.map((file) => ({ file, url: URL.createObjectURL(file) })),
-    [files],
-  );
-
-  // Free the preview URLs when the selection changes or the picker unmounts
-  useEffect(
-    () => () => {
-      for (const preview of previews) URL.revokeObjectURL(preview.url);
-    },
-    [previews],
-  );
+  const urls = useObjectUrls(files);
 
   const addFiles = (incoming: FileList | null) => {
     if (!incoming) return;
@@ -98,43 +88,47 @@ export default function ImagePicker({
         }}
       />
 
-      {previews.length > 0 && (
+      {urls.length > 0 && (
         <ul className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-5">
-          {previews.map(({ file, url }, index) => (
-            <li
-              key={url}
-              className="group relative aspect-square overflow-hidden rounded-xl border bg-muted"
-            >
-              <Image
-                src={url}
-                alt={file.name}
-                fill
-                unoptimized
-                sizes="160px"
-                className="object-cover"
-              />
-              {index === 0 && (
-                <span className="absolute bottom-1.5 left-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold">
-                  Cover
+          {files.map((file, index) => {
+            const url = urls[index];
+            if (!url) return null;
+            return (
+              <li
+                key={url}
+                className="group relative aspect-square overflow-hidden rounded-xl border bg-muted"
+              >
+                <Image
+                  src={url}
+                  alt={file.name}
+                  fill
+                  unoptimized
+                  sizes="160px"
+                  className="object-cover"
+                />
+                {index === 0 && (
+                  <span className="absolute bottom-1.5 left-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[11px] font-semibold">
+                    Cover
+                  </span>
+                )}
+                <span className="absolute inset-x-0 bottom-0 truncate bg-black/50 px-2 py-1 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100">
+                  {formatFileSize(file.size)}
                 </span>
-              )}
-              <span className="absolute inset-x-0 bottom-0 truncate bg-black/50 px-2 py-1 text-[11px] text-white opacity-0 transition-opacity group-hover:opacity-100">
-                {formatFileSize(file.size)}
-              </span>
-              {!disabled && (
-                <button
-                  type="button"
-                  aria-label={`Remove ${file.name}`}
-                  onClick={() =>
-                    onFilesChange(files.filter((_, i) => i !== index))
-                  }
-                  className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow transition-colors hover:bg-destructive hover:text-white"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </li>
-          ))}
+                {!disabled && (
+                  <button
+                    type="button"
+                    aria-label={`Remove ${file.name}`}
+                    onClick={() =>
+                      onFilesChange(files.filter((_, i) => i !== index))
+                    }
+                    className="absolute top-1.5 right-1.5 flex size-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow transition-colors hover:bg-destructive hover:text-white"
+                  >
+                    <X className="size-4" />
+                  </button>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
 

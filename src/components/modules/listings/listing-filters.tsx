@@ -1,7 +1,7 @@
 "use client";
 
 import { RotateCcw, SlidersHorizontal } from "lucide-react";
-import { ALL_AMENITIES, AMENITY_ICONS } from "@/components/shared/amenity-list";
+import AmenityPicker from "@/components/shared/amenity-picker";
 import SearchInput from "@/components/shared/search-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useUrlState } from "@/hooks";
+import type { Amenity } from "@/types";
 import { formatEnum } from "@/utils";
 
 export type ListingKind = "properties" | "rooms";
@@ -40,14 +41,7 @@ export const FILTER_KEYS = [
 
 function FilterControls({ kind }: { kind: ListingKind }) {
   const { get, set } = useUrlState();
-  const amenities = get("amenities").split(",").filter(Boolean);
-
-  const toggleAmenity = (amenity: string) => {
-    const next = amenities.includes(amenity)
-      ? amenities.filter((item) => item !== amenity)
-      : [...amenities, amenity];
-    set({ amenities: next.join(",") });
-  };
+  const amenities = get("amenities").split(",").filter(Boolean) as Amenity[];
 
   return (
     <FieldGroup className="gap-5">
@@ -145,27 +139,11 @@ function FilterControls({ kind }: { kind: ListingKind }) {
 
       <Field>
         <FieldLabel>Amenities</FieldLabel>
-        <div className="flex flex-wrap gap-2">
-          {ALL_AMENITIES.map((amenity) => {
-            const Icon = AMENITY_ICONS[amenity];
-            return (
-              <Badge
-                key={amenity}
-                variant="chip"
-                render={
-                  <button
-                    type="button"
-                    aria-pressed={amenities.includes(amenity)}
-                    onClick={() => toggleAmenity(amenity)}
-                  />
-                }
-              >
-                <Icon />
-                {formatEnum(amenity)}
-              </Badge>
-            );
-          })}
-        </div>
+        <AmenityPicker
+          label="Amenities"
+          value={amenities}
+          onChange={(next) => set({ amenities: next.join(",") })}
+        />
       </Field>
 
       {kind === "properties" && (
