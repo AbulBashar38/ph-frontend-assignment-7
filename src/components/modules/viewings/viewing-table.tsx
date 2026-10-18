@@ -13,7 +13,13 @@ import StatusBadge from "@/components/shared/status-badge";
 import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
 import { Button } from "@/components/ui/button";
-import { type SortOptions, useAuth, useListParams, useViewings } from "@/hooks";
+import {
+  type SortOptions,
+  useAuth,
+  useListParams,
+  usePageSize,
+  useViewings,
+} from "@/hooks";
 import type { ViewingListItem, ViewingStatus } from "@/types";
 import { formatDateTime } from "@/utils";
 import ViewingActions from "./viewing-actions";
@@ -127,13 +133,14 @@ function columns(isTenant: boolean): DataTableColumn<ViewingListItem>[] {
 
 // Viewing requests for the signed-in user: owners review them, tenants follow and cancel their own
 export default function ViewingTable({ pathname }: { pathname: string }) {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { isTenant } = useAuth();
   const { filtered, ...params } = useListParams({
     statuses: STATUSES,
     sorts: SORTS,
   });
   const query = useViewings(
-    { ...params, limit: PAGE_SIZE },
+    { ...params, limit: pageSize },
     { keepPrevious: true },
   );
 

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useMarkAllNotificationsRead,
   useNotifications,
+  usePageSize,
   useUnreadNotificationCount,
   useUrlState,
 } from "@/hooks";
@@ -30,6 +31,7 @@ export function NotificationListSkeleton() {
 
 // Every notification, newest first; ?filter=unread and ?page live in the URL
 export default function NotificationList({ pathname }: { pathname: string }) {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const unreadOnly = get("filter") === "unread";
   const page = toPositiveInt(get("page"), 1);
@@ -37,7 +39,7 @@ export default function NotificationList({ pathname }: { pathname: string }) {
     {
       isRead: unreadOnly ? "false" : undefined,
       page,
-      limit: PAGE_SIZE,
+      limit: pageSize,
       sortBy: "createdAt",
       sortOrder: "desc",
     },

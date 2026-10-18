@@ -11,7 +11,13 @@ import PropertyFilter from "@/components/shared/property-filter";
 import StatusBadge from "@/components/shared/status-badge";
 import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
-import { type SortOptions, useAuth, useListParams, usePayments } from "@/hooks";
+import {
+  type SortOptions,
+  useAuth,
+  useListParams,
+  usePageSize,
+  usePayments,
+} from "@/hooks";
 import type { Payment, PaymentStatus } from "@/types";
 import { formatCurrency, formatDate } from "@/utils";
 import ReceiptButton from "./receipt-button";
@@ -130,13 +136,14 @@ function columns(isTenant: boolean): DataTableColumn<Payment>[] {
 
 // Rent bills of the signed-in user: tenants can pay due ones, everyone gets receipts for paid ones
 export default function PaymentTable({ pathname }: { pathname: string }) {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { isTenant } = useAuth();
   const { filtered, ...params } = useListParams({
     statuses: STATUSES,
     sorts: SORTS,
   });
   const query = usePayments(
-    { ...params, limit: PAGE_SIZE },
+    { ...params, limit: pageSize },
     { keepPrevious: true },
   );
 

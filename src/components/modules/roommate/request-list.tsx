@@ -10,7 +10,7 @@ import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRoommateRequests, useUrlState } from "@/hooks";
+import { usePageSize, useRoommateRequests, useUrlState } from "@/hooks";
 import type { RoommateRequestStatus } from "@/types";
 import { toPositiveInt } from "@/utils";
 import RequestCard from "./request-card";
@@ -35,6 +35,7 @@ export function RequestListSkeleton() {
 
 // Received (default) or sent requests: ?type=sent, ?status and ?page in the URL
 export default function RequestList() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const direction = get("type") === "sent" ? "sent" : "received";
   const status = STATUSES.find((value) => value === get("status"));
@@ -43,7 +44,7 @@ export default function RequestList() {
     type: direction,
     status,
     page,
-    limit: PAGE_SIZE,
+    limit: pageSize,
     sortBy: "createdAt",
     sortOrder: "desc",
   });

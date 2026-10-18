@@ -15,6 +15,7 @@ import {
   type SortOptions,
   useListParams,
   useManagedProperties,
+  usePageSize,
   useUrlState,
 } from "@/hooks";
 import type { ManagedProperty, PropertyStatus } from "@/types";
@@ -144,6 +145,7 @@ const columns: DataTableColumn<ManagedProperty>[] = [
 ];
 
 export default function PropertyTable() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const searchTerm = get("searchTerm") || undefined;
   const { filtered, ...params } = useListParams({
@@ -151,7 +153,7 @@ export default function PropertyTable() {
     sorts: SORTS,
   });
   const query = useManagedProperties(
-    { ...params, searchTerm, limit: PAGE_SIZE },
+    { ...params, searchTerm, limit: pageSize },
     { keepPrevious: true },
   );
 

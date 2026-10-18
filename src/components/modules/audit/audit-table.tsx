@@ -8,7 +8,7 @@ import ListToolbar from "@/components/shared/list-toolbar";
 import ListView from "@/components/shared/list-view";
 import UrlSelect from "@/components/shared/url-select";
 import { Badge } from "@/components/ui/badge";
-import { useAuditLogs, useUrlState } from "@/hooks";
+import { useAuditLogs, usePageSize, useUrlState } from "@/hooks";
 import {
   AUDIT_ACTIONS,
   AUDIT_RESOURCES,
@@ -135,6 +135,7 @@ const columns: DataTableColumn<AuditLog>[] = [
 
 // Every recorded change, newest first; filter by record type, action and who did it (all in the URL)
 export default function AuditTable() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const resource = AUDIT_RESOURCES.find((value) => value === get("resource"));
   const action = AUDIT_ACTIONS.find((value) => value === get("action"));
@@ -145,7 +146,7 @@ export default function AuditTable() {
     action,
     actorRole,
     page: toPositiveInt(get("page"), 1),
-    limit: PAGE_SIZE,
+    limit: pageSize,
     sortBy: "createdAt",
     sortOrder: "desc",
   });

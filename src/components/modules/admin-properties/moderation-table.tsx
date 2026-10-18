@@ -15,6 +15,7 @@ import {
   type SortOptions,
   useListParams,
   useManagedProperties,
+  usePageSize,
   useUrlState,
 } from "@/hooks";
 import type { ManagedProperty, PropertyStatus } from "@/types";
@@ -128,6 +129,7 @@ const columns: DataTableColumn<ManagedProperty>[] = [
 
 // Every listing on the platform, for moderation (?searchTerm, ?status, ?page)
 export default function ModerationTable() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const searchTerm = get("searchTerm") || undefined;
   const { filtered, ...params } = useListParams({
@@ -135,7 +137,7 @@ export default function ModerationTable() {
     sorts: SORTS,
   });
   const query = useManagedProperties(
-    { ...params, searchTerm, limit: PAGE_SIZE },
+    { ...params, searchTerm, limit: pageSize },
     { keepPrevious: true },
   );
 

@@ -18,6 +18,7 @@ import {
   useApplications,
   useAuth,
   useListParams,
+  usePageSize,
 } from "@/hooks";
 import type { ApplicationListItem, ApplicationStatus } from "@/types";
 import { formatCurrency, formatDate } from "@/utils";
@@ -150,13 +151,14 @@ function columns(isTenant: boolean): DataTableColumn<ApplicationListItem>[] {
 
 // Rental applications: owners approve or decline, tenants follow and withdraw their own
 export default function ApplicationTable({ pathname }: { pathname: string }) {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { isTenant } = useAuth();
   const { filtered, ...params } = useListParams({
     statuses: STATUSES,
     sorts: SORTS,
   });
   const query = useApplications(
-    { ...params, limit: PAGE_SIZE },
+    { ...params, limit: pageSize },
     { keepPrevious: true },
   );
 

@@ -3,11 +3,16 @@ import Link from "next/link";
 import { searchProperties } from "@/api/public.server";
 import EmptyState from "@/components/shared/empty-state";
 import { Stagger, StaggerItem } from "@/components/shared/motion/stagger";
+import PaginationBar from "@/components/shared/pagination-bar";
 import PropertyCard from "@/components/shared/property-card";
-import UrlPagination from "@/components/shared/url-pagination";
 import { buttonVariants } from "@/components/ui/button";
 import type { PublicPropertyQueryParams } from "@/types";
-import { pickSearchParams, type RawSearchParams, toPositiveInt } from "@/utils";
+import {
+  pickSearchParams,
+  type RawSearchParams,
+  toPageSize,
+  toPositiveInt,
+} from "@/utils";
 import ResultsHeader from "./results-header";
 import type { SortOption } from "./sort-select";
 
@@ -15,6 +20,7 @@ const PAGE_SIZE = 12;
 
 // Exactly what GET /property/public/all-properties accepts
 const ALLOWED_KEYS = [
+  "limit",
   "searchTerm",
   "city",
   "area",
@@ -51,11 +57,11 @@ export default async function PropertyResults({
     sortBy: params.sortBy ?? "newest",
     sortOrder: params.sortOrder === "asc" ? "asc" : "desc",
     page,
-    limit: PAGE_SIZE,
+    limit: toPageSize(params.limit, PAGE_SIZE),
   } as PublicPropertyQueryParams);
 
   const hasFilters = Object.keys(params).some(
-    (key) => !["sortBy", "sortOrder", "page"].includes(key),
+    (key) => !["sortBy", "sortOrder", "page", "limit"].includes(key),
   );
 
   return (
@@ -102,11 +108,11 @@ export default async function PropertyResults({
         />
       )}
 
-      <UrlPagination
+      <PaginationBar
+        meta={meta}
         pathname="/properties"
         params={params}
-        page={meta.page}
-        totalPages={meta.totalPages}
+        summary={`${meta.total} ${meta.total === 1 ? "property" : "properties"} found`}
       />
     </div>
   );

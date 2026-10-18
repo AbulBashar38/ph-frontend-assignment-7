@@ -3,11 +3,16 @@ import Link from "next/link";
 import { searchRooms } from "@/api/public.server";
 import EmptyState from "@/components/shared/empty-state";
 import { Stagger, StaggerItem } from "@/components/shared/motion/stagger";
+import PaginationBar from "@/components/shared/pagination-bar";
 import RoomCard from "@/components/shared/room-card";
-import UrlPagination from "@/components/shared/url-pagination";
 import { buttonVariants } from "@/components/ui/button";
 import type { PublicRoomQueryParams } from "@/types";
-import { pickSearchParams, type RawSearchParams, toPositiveInt } from "@/utils";
+import {
+  pickSearchParams,
+  type RawSearchParams,
+  toPageSize,
+  toPositiveInt,
+} from "@/utils";
 import ResultsHeader from "./results-header";
 import type { SortOption } from "./sort-select";
 
@@ -15,6 +20,7 @@ const PAGE_SIZE = 12;
 
 // Exactly what GET /room/public/available-rooms accepts
 const ALLOWED_KEYS = [
+  "limit",
   "searchTerm",
   "city",
   "area",
@@ -50,11 +56,11 @@ export default async function RoomResults({
     sortBy: params.sortBy ?? "createdAt",
     sortOrder: params.sortOrder === "asc" ? "asc" : "desc",
     page,
-    limit: PAGE_SIZE,
+    limit: toPageSize(params.limit, PAGE_SIZE),
   } as PublicRoomQueryParams);
 
   const hasFilters = Object.keys(params).some(
-    (key) => !["sortBy", "sortOrder", "page"].includes(key),
+    (key) => !["sortBy", "sortOrder", "page", "limit"].includes(key),
   );
 
   return (
@@ -103,11 +109,11 @@ export default async function RoomResults({
         />
       )}
 
-      <UrlPagination
+      <PaginationBar
+        meta={meta}
         pathname="/rooms"
         params={params}
-        page={meta.page}
-        totalPages={meta.totalPages}
+        summary={`${meta.total} ${meta.total === 1 ? "room" : "rooms"} found`}
       />
     </div>
   );

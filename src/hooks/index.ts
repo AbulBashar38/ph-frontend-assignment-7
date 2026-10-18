@@ -12,6 +12,7 @@ export * from "./mounted.hook";
 export * from "./notification.hook";
 export * from "./object-url.hook";
 export * from "./owner.hook";
+export * from "./page-size.hook";
 export * from "./payment.hook";
 export * from "./property.hook";
 export * from "./rental.hook";

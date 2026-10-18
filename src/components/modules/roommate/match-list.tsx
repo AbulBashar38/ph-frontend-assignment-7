@@ -7,7 +7,7 @@ import ListFooter from "@/components/shared/list-footer";
 import UrlSelect from "@/components/shared/url-select";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRoommateMatches, useUrlState } from "@/hooks";
+import { usePageSize, useRoommateMatches, useUrlState } from "@/hooks";
 import { toPositiveInt } from "@/utils";
 import MatchCard from "./match-card";
 import RoommateAccessError from "./roommate-access-error";
@@ -28,13 +28,14 @@ export function MatchListSkeleton() {
 
 // Best fits first (the API sorts by score); ?minScore and ?page live in the URL
 export default function MatchList() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get, clear } = useUrlState();
   const minScore = MIN_SCORES.includes(get("minScore")) ? get("minScore") : "";
   const page = toPositiveInt(get("page"), 1);
   const query = useRoommateMatches({
     minScore: minScore ? Number(minScore) : undefined,
     page,
-    limit: PAGE_SIZE,
+    limit: pageSize,
   });
   const stateOf = useConnectionState();
 

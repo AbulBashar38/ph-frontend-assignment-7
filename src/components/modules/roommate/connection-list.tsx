@@ -8,7 +8,7 @@ import PersonCell from "@/components/shared/person-cell";
 import QueryError from "@/components/shared/query-error";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRoommateConnections, useUrlState } from "@/hooks";
+import { usePageSize, useRoommateConnections, useUrlState } from "@/hooks";
 import { formatDate, toPositiveInt } from "@/utils";
 import ContactLinks from "./contact-links";
 
@@ -26,9 +26,10 @@ export function ConnectionListSkeleton() {
 
 // People who accepted (or whose request I accepted), with their contact details
 export default function ConnectionList() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const page = toPositiveInt(get("page"), 1);
-  const query = useRoommateConnections({ page, limit: PAGE_SIZE });
+  const query = useRoommateConnections({ page, limit: pageSize });
 
   if (query.isPending) return <ConnectionListSkeleton />;
   if (query.isError) {

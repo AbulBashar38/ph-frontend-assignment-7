@@ -13,7 +13,13 @@ import StatusBadge from "@/components/shared/status-badge";
 import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
 import { Button } from "@/components/ui/button";
-import { type SortOptions, useAuth, useListParams, useRentals } from "@/hooks";
+import {
+  type SortOptions,
+  useAuth,
+  useListParams,
+  usePageSize,
+  useRentals,
+} from "@/hooks";
 import type { Rental, RentalStatus } from "@/types";
 import { formatCurrency, formatDate } from "@/utils";
 import RentalActions from "./rental-actions";
@@ -129,13 +135,14 @@ function columns(isTenant: boolean): DataTableColumn<Rental>[] {
 
 // Rentals the signed-in user is part of: owners see their tenants, tenants their homes
 export default function RentalTable({ pathname }: { pathname: string }) {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { isTenant } = useAuth();
   const { filtered, ...params } = useListParams({
     statuses: STATUSES,
     sorts: SORTS,
   });
   const query = useRentals(
-    { ...params, limit: PAGE_SIZE },
+    { ...params, limit: pageSize },
     { keepPrevious: true },
   );
 

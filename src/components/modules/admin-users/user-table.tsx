@@ -12,7 +12,7 @@ import StatusBadge from "@/components/shared/status-badge";
 import UrlSelect from "@/components/shared/url-select";
 import UrlTabs from "@/components/shared/url-tabs";
 import { Badge } from "@/components/ui/badge";
-import { useUrlState, useUsers } from "@/hooks";
+import { usePageSize, useUrlState, useUsers } from "@/hooks";
 import type { User, UserRole, UserStatus } from "@/types";
 import { formatDate, formatEnum, toPositiveInt } from "@/utils";
 import UserRowActions from "./user-row-actions";
@@ -112,6 +112,7 @@ const columns: DataTableColumn<User>[] = [
 
 // Every account: search by name, email or phone; filter by role (?role) and status (?status)
 export default function UserTable() {
+  const pageSize = usePageSize(PAGE_SIZE);
   const { get } = useUrlState();
   const role = ROLES.find((value) => value === get("role"));
   const status = STATUSES.find((value) => value === get("status"));
@@ -121,7 +122,7 @@ export default function UserTable() {
     status,
     searchTerm,
     page: toPositiveInt(get("page"), 1),
-    limit: PAGE_SIZE,
+    limit: pageSize,
     sortBy: "createdAt",
     sortOrder: "desc",
   });
