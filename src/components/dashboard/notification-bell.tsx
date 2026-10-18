@@ -15,21 +15,32 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   useMarkAllNotificationsRead,
   useNotifications,
+  useRefreshNotifications,
+  useRefreshNotificationsOnNewArrivals,
   useUnreadNotificationCount,
 } from "@/hooks";
 
 // Bell with the unread count; opens the latest notifications (marking read updates instantly)
 export default function NotificationBell({ allHref }: { allHref: string }) {
   const { data: countData } = useUnreadNotificationCount();
-  const { data, isPending } = useNotifications({ limit: 6 });
+  const { data, isPending, isFetching } = useNotifications({ limit: 6 });
+  const refreshNotifications = useRefreshNotifications();
   const [open, setOpen] = useState(false);
+  useRefreshNotificationsOnNewArrivals(countData?.data.unreadCount);
   const { mutate: markAllRead } = useMarkAllNotificationsRead();
 
   const unread = countData?.data.unreadCount ?? 0;
   const notifications = data?.data ?? [];
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        // Always show the latest when it opens, whatever is cached
+        if (next) refreshNotifications();
+      }}
+    >
       <PopoverTrigger
         render={
           <Button
@@ -73,7 +84,7 @@ export default function NotificationBell({ allHref }: { allHref: string }) {
         </div>
 
         <div className="max-h-96 overflow-y-auto">
-          {isPending ? (
+          {isPending || (isFetching && notifications.length === 0) ? (
             <div className="space-y-3 p-4">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />

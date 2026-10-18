@@ -5,6 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
 import {
   getNotifications,
   getUnreadNotificationCount,
@@ -36,8 +37,35 @@ export function useUnreadNotificationCount() {
     queryKey: COUNT_KEY,
     queryFn: getUnreadNotificationCount,
     // Keep the bell fresh while the dashboard is open
-    refetchInterval: 60_000,
+    refetchInterval: 30_000,
   });
+}
+
+// Re-read the count and every list now (the bell does this whenever it opens)
+export function useRefreshNotifications() {
+  const queryClient = useQueryClient();
+  return () => queryClient.invalidateQueries({ queryKey: LIST_KEY });
+}
+
+// The count is polled but the lists aren't: when the count goes UP (new notifications arrived),
+// refresh every cached list so the bell dropdown and the page show them. A drop is a "mark read",
+// already applied optimistically, so it doesn't refetch.
+export function useRefreshNotificationsOnNewArrivals(
+  unread: number | undefined,
+) {
+  const queryClient = useQueryClient();
+  const previous = useRef(unread);
+
+  useEffect(() => {
+    if (unread === undefined) return;
+    if (previous.current !== undefined && unread > previous.current) {
+      queryClient.invalidateQueries({
+        queryKey: LIST_KEY,
+        predicate: (query) => query.queryKey[1] !== COUNT_KEY[1],
+      });
+    }
+    previous.current = unread;
+  }, [unread, queryClient]);
 }
 
 type ListSnapshot = [QueryKey, ApiResponse<Notification[]> | undefined][];
