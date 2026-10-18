@@ -21,7 +21,7 @@ const GENDERS: { value: Gender; label: string }[] = [
 
 // Name and phone for everyone; occupation and gender for tenants (roommate matching); address for owners
 export default function ProfileForm({ user }: { user: User }) {
-  const { mutate, isPending } = useUpdateProfile();
+  const { mutateAsync, isPending } = useUpdateProfile();
   const isTenant = user.role === "TENANT";
   const isOwner = user.role === "OWNER";
 
@@ -34,7 +34,7 @@ export default function ProfileForm({ user }: { user: User }) {
       address: user.address ?? "",
     },
     validators: { onChange: profileSchema, onSubmit: profileSchema },
-    onSubmit: ({ value }) => {
+    onSubmit: async ({ value }) => {
       const payload: UpdateProfilePayload = {
         name: value.name.trim(),
         // The backend can't clear a phone number, so an empty box leaves it unchanged
@@ -45,13 +45,13 @@ export default function ProfileForm({ user }: { user: User }) {
         }),
         ...(isOwner && { address: value.address.trim() || null }),
       };
-      mutate(
-        { id: user.id, payload },
-        {
-          onSuccess: () => toast.success("Profile saved"),
-          onError: (error) => toast.error(getErrorMessage(error)),
-        },
-      );
+      // Awaited so the toast shows even though the form remounts with the saved values
+      try {
+        await mutateAsync({ id: user.id, payload });
+        toast.success("Profile saved");
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      }
     },
   });
 

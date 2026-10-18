@@ -18,18 +18,19 @@ export default function DetailsTab({
 }: {
   property: ManagedProperty;
 }) {
-  const { mutate, isPending, variables } = useUpdateProperty();
+  const { mutateAsync, isPending, variables } = useUpdateProperty();
   // Which section is saving (so only its button spins)
   const savingKey = isPending ? Object.keys(variables?.payload ?? {})[0] : null;
 
-  const update = (payload: Partial<PropertyPayload>, message: string) =>
-    mutate(
-      { id: property.id, payload },
-      {
-        onSuccess: () => toast.success(message),
-        onError: (error) => toast.error(getErrorMessage(error)),
-      },
-    );
+  // Awaited so the toast shows even though this tab remounts with the saved values (keyed by updatedAt)
+  const update = async (payload: Partial<PropertyPayload>, message: string) => {
+    try {
+      await mutateAsync({ id: property.id, payload });
+      toast.success(message);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    }
+  };
 
   return (
     <div className="space-y-6">

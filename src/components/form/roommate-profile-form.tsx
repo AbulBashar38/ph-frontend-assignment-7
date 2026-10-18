@@ -89,18 +89,21 @@ export default function RoommateProfileForm({
       onChange: roommateProfileSchema,
       onSubmit: roommateProfileSchema,
     },
-    onSubmit: ({ value }) =>
-      save.mutate(toRoommatePayload(value), {
-        onSuccess: () => {
-          toast.success(
-            profile
-              ? "Roommate profile saved"
-              : "Roommate profile created. Your matches are ready",
-          );
-          onSaved?.();
-        },
-        onError: (error) => toast.error(getErrorMessage(error)),
-      }),
+    // Awaited instead of mutate callbacks: the form remounts with the saved values (it's keyed by
+    // updatedAt), and TanStack Query skips per-call callbacks of an unmounted caller, so the toast would be lost
+    onSubmit: async ({ value }) => {
+      try {
+        await save.mutateAsync(toRoommatePayload(value));
+        toast.success(
+          profile
+            ? "Roommate profile saved"
+            : "Roommate profile created. Your matches are ready",
+        );
+        onSaved?.();
+      } catch (error) {
+        toast.error(getErrorMessage(error));
+      }
+    },
   });
 
   // Number inputs: an empty box is NaN, which the schema reports as "enter …"
