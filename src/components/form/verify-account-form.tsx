@@ -4,7 +4,7 @@ import { REGEXP_ONLY_DIGITS } from "input-otp";
 import { MailCheck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -34,6 +34,7 @@ export default function VerifyAccountForm() {
 
   const [otp, setOtp] = useState("");
   const [showError, setShowError] = useState(false);
+  const otpRef = useRef<HTMLInputElement>(null);
   const { remaining: cooldown, restart: restartCooldown } = useCountdown(
     RESEND_COOLDOWN_SECONDS,
   );
@@ -55,6 +56,13 @@ export default function VerifyAccountForm() {
     );
   }
 
+  // After every verify or resend attempt the boxes start empty; focus returns to them when there's more to type
+  const clearOtp = (focus: boolean) => {
+    setOtp("");
+    setShowError(false);
+    if (focus) requestAnimationFrame(() => otpRef.current?.focus());
+  };
+
   const submitOtp = (code: string) => {
     if (code.length !== OTP_LENGTH) {
       setShowError(true);
@@ -66,11 +74,12 @@ export default function VerifyAccountForm() {
       {
         onSuccess: (res) => {
           toast.success(res.message);
+          clearOtp(false);
           redirectAfterAuth(res.data.user);
         },
         onError: (error) => {
           toast.error(getErrorMessage(error));
-          setOtp("");
+          clearOtp(true);
         },
       },
     );
@@ -82,10 +91,13 @@ export default function VerifyAccountForm() {
       {
         onSuccess: (res) => {
           toast.success(res.message);
-          setOtp("");
+          clearOtp(true);
           restartCooldown();
         },
-        onError: (error) => toast.error(getErrorMessage(error)),
+        onError: (error) => {
+          toast.error(getErrorMessage(error));
+          clearOtp(true);
+        },
       },
     );
   };
@@ -117,6 +129,7 @@ export default function VerifyAccountForm() {
       <Field data-invalid={showError}>
         <FieldLabel htmlFor="otp">Verification code</FieldLabel>
         <InputOTP
+          ref={otpRef}
           id="otp"
           name="otp"
           maxLength={OTP_LENGTH}
