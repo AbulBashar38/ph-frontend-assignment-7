@@ -4,7 +4,7 @@ import { DoorOpen, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { uploadRoomImages } from "@/api";
-import RoomForm from "@/components/form/room-form";
+import RoomForm, { MAX_ROOM_PHOTOS } from "@/components/form/room-form";
 import ConfirmDialog from "@/components/shared/confirm-dialog";
 import EmptyState from "@/components/shared/empty-state";
 import PhotoManager from "@/components/shared/photo-manager";
@@ -31,9 +31,6 @@ import type { ManagedProperty, ManagedRoom } from "@/types";
 import { getErrorMessage } from "@/utils";
 import { EMPTY_ROOM, type RoomFormValues, toRoomPayload } from "@/validation";
 import RoomCard from "./room-card";
-
-// Same limit as the backend's MAX_IMAGES_PER_ROOM
-const MAX_ROOM_PHOTOS = 10;
 
 type Panel =
   | { kind: "new" }
@@ -81,6 +78,36 @@ export default function RoomsTab({ property }: { property: ManagedProperty }) {
     },
     onError: (error: Error) => toast.error(getErrorMessage(error)),
   });
+
+  // Create the room, then upload its photos (the room's JSON can't carry files)
+  const addRoom = async (
+    name: string,
+    payload: ReturnType<typeof toRoomPayload>,
+    photos: File[],
+  ) => {
+    let roomId: string | null = null;
+    try {
+      roomId = (
+        await createRoom.mutateAsync({ propertyId: property.id, payload })
+      ).data.id;
+      if (photos.length) await upload.start(roomId, photos);
+      toast.success(
+        photos.length
+          ? `${name} added with ${photos.length} photo${photos.length === 1 ? "" : "s"}`
+          : `${name} added`,
+      );
+      close();
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+      // The room exists; only its photos are missing, so don't create it twice
+      if (roomId) {
+        toast.info(
+          `${name} was added. Add its photos from the room's Photos button`,
+        );
+        close();
+      }
+    }
+  };
 
   const addButton = (
     <Button size="sm" onClick={() => setPanel({ kind: "new" })}>
@@ -141,7 +168,9 @@ export default function RoomsTab({ property }: { property: ManagedProperty }) {
 
       <Dialog
         open={panel?.kind === "new" || panel?.kind === "edit"}
-        onOpenChange={(open) => !open && close()}
+        onOpenChange={(open) =>
+          !open && !createRoom.isPending && !upload.isUploading && close()
+        }
       >
         <DialogContent className="p-6 sm:max-w-2xl">
           <DialogHeader>
@@ -158,17 +187,17 @@ export default function RoomsTab({ property }: { property: ManagedProperty }) {
             <RoomForm
               defaultValues={EMPTY_ROOM}
               submitLabel="Add room"
-              pending={createRoom.isPending}
+              withPhotos
+              uploadProgress={upload.progress}
+              pending={createRoom.isPending || upload.isUploading}
+              pendingLabel={upload.isUploading ? "Uploading photos" : "Saving"}
               secondary={
                 <Button type="button" variant="ghost" onClick={close}>
                   Cancel
                 </Button>
               }
-              onSubmit={(values) =>
-                createRoom.mutate(
-                  { propertyId: property.id, payload: toRoomPayload(values) },
-                  onSaved(`${values.name.trim()} added`),
-                )
+              onSubmit={(values, photos) =>
+                addRoom(values.name.trim(), toRoomPayload(values), photos)
               }
             />
           )}

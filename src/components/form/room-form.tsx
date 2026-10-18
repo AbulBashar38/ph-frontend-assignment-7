@@ -1,8 +1,9 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import AmenityPicker from "@/components/shared/amenity-picker";
+import ImagePicker from "@/components/shared/image-picker";
 import { FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
@@ -13,24 +14,37 @@ import { ROOM_TYPES, type RoomFormValues, roomSchema } from "@/validation";
 import FormActions from "./form-actions";
 import FormField from "./form-field";
 
-// One room: name, type, rent, capacity, move-in date, amenities (wizard and the property page)
+// The backend takes up to 10 photos per room
+export const MAX_ROOM_PHOTOS = 10;
+
+// One room: name, type, rent, capacity, move-in date, amenities and, when adding a room, its photos
+// (wizard and the property page). Photos aren't part of the room's JSON: the caller uploads them after creating it.
 export default function RoomForm({
   defaultValues,
   onSubmit,
   submitLabel,
   pending,
+  pendingLabel,
   secondary,
+  withPhotos = false,
+  initialPhotos = [],
+  uploadProgress = null,
 }: {
   defaultValues: RoomFormValues;
-  onSubmit: (values: RoomFormValues) => void;
+  onSubmit: (values: RoomFormValues, photos: File[]) => void;
   submitLabel: string;
   pending?: boolean;
+  pendingLabel?: string;
   secondary?: ReactNode;
+  withPhotos?: boolean;
+  initialPhotos?: File[];
+  uploadProgress?: number | null;
 }) {
+  const [photos, setPhotos] = useState<File[]>(initialPhotos);
   const form = useForm({
     defaultValues,
     validators: { onChange: roomSchema, onSubmit: roomSchema },
-    onSubmit: ({ value }) => onSubmit(value),
+    onSubmit: ({ value }) => onSubmit(value, photos),
   });
 
   return (
@@ -203,9 +217,28 @@ export default function RoomForm({
           )}
         </form.Field>
 
+        {withPhotos && (
+          <div className="space-y-3">
+            <FieldLabel>
+              Room photos
+              <span className="font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </FieldLabel>
+            <ImagePicker
+              files={photos}
+              onFilesChange={setPhotos}
+              maxFiles={MAX_ROOM_PHOTOS}
+              progress={uploadProgress}
+              disabled={pending}
+            />
+          </div>
+        )}
+
         <FormActions
           submitLabel={submitLabel}
           pending={pending}
+          pendingLabel={pendingLabel}
           secondary={secondary}
         />
       </FieldGroup>

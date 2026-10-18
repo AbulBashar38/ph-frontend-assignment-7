@@ -1,6 +1,13 @@
 "use client";
 
-import { DoorOpen, PencilLine, Plus, Trash2, Users } from "lucide-react";
+import {
+  DoorOpen,
+  ImageIcon,
+  PencilLine,
+  Plus,
+  Trash2,
+  Users,
+} from "lucide-react";
 import { useState } from "react";
 import EmptyState from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
@@ -22,6 +29,7 @@ import { StepNav } from "./wizard-nav";
 
 export default function RoomsStep() {
   const rooms = usePropertyWizardStore((state) => state.rooms);
+  const roomPhotos = usePropertyWizardStore((state) => state.roomPhotos);
   const addRoom = usePropertyWizardStore((state) => state.addRoom);
   const updateRoom = usePropertyWizardStore((state) => state.updateRoom);
   const removeRoom = usePropertyWizardStore((state) => state.removeRoom);
@@ -63,6 +71,12 @@ export default function RoomsStep() {
                     </span>
                     {room.availableFrom &&
                       ` · from ${formatDate(room.availableFrom)}`}
+                  </p>
+                  <p className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                    <ImageIcon className="size-3.5" />
+                    {roomPhotos[room.id]?.length
+                      ? `${roomPhotos[room.id].length} photo${roomPhotos[room.id].length === 1 ? "" : "s"}`
+                      : "No photos"}
                   </p>
                   <p className="font-heading text-lg font-semibold text-primary">
                     {formatCurrency(room.monthlyRent)}
@@ -121,6 +135,10 @@ export default function RoomsStep() {
             <RoomForm
               defaultValues={editing === "new" ? EMPTY_ROOM : editing}
               submitLabel={editing === "new" ? "Add room" : "Save room"}
+              withPhotos
+              initialPhotos={
+                editing === "new" ? [] : (roomPhotos[editing.id] ?? [])
+              }
               secondary={
                 <Button
                   type="button"
@@ -130,9 +148,9 @@ export default function RoomsStep() {
                   Cancel
                 </Button>
               }
-              onSubmit={(values) => {
-                if (editing === "new") addRoom(values);
-                else updateRoom(editing.id, values);
+              onSubmit={(values, photos) => {
+                if (editing === "new") addRoom(values, photos);
+                else updateRoom(editing.id, values, photos);
                 setEditing(null);
               }}
             />

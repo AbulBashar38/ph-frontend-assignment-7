@@ -4,7 +4,7 @@ import { Check, Circle, PencilLine, Rocket, Save, X } from "lucide-react";
 import Image from "next/image";
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { uploadPropertyImages } from "@/api";
+import { uploadPropertyImages, uploadRoomImages } from "@/api";
 import { AMENITY_ICONS, amenityLabel } from "@/components/shared/amenity-list";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,9 @@ export default function ReviewStep({
   const createRoom = useCreateRoom();
   const updateStatus = useUpdatePropertyStatus();
   const upload = useUploadWithProgress(uploadPropertyImages);
+  const roomUpload = useUploadWithProgress(uploadRoomImages);
+  // Whose photos are uploading right now (the property's or a room's)
+  const [uploadingFor, setUploadingFor] = useState("photos");
   const [tasks, setTasks] = useState<Partial<Record<TaskKey, TaskState>>>({});
   const [roomsDone, setRoomsDone] = useState(0);
   const submitting = Object.values(tasks).includes("running");
@@ -134,6 +137,7 @@ export default function ReviewStep({
       if (photos.length) {
         current = "photos";
         mark("photos", "running");
+        setUploadingFor("photos");
         await upload.start(propertyId, photos);
         mark("photos", "done");
       }
@@ -142,10 +146,15 @@ export default function ReviewStep({
         current = "rooms";
         mark("rooms", "running");
         for (const room of rooms) {
-          await createRoom.mutateAsync({
+          const created = await createRoom.mutateAsync({
             propertyId,
             payload: toRoomPayload(room),
           });
+          const files = store.roomPhotos[room.id] ?? [];
+          if (files.length) {
+            setUploadingFor(`photos of ${room.name}`);
+            await roomUpload.start(created.data.id, files);
+          }
           setRoomsDone((count) => count + 1);
         }
         mark("rooms", "done");
@@ -257,7 +266,9 @@ export default function ReviewStep({
                   <span className="text-muted-foreground">
                     {" "}
                     · {room.roomType && formatEnum(room.roomType)} · fits{" "}
-                    {room.maxOccupants}
+                    {room.maxOccupants} ·{" "}
+                    {store.roomPhotos[room.id]?.length ?? 0} photo
+                    {store.roomPhotos[room.id]?.length === 1 ? "" : "s"}
                   </span>
                 </span>
                 <span className="shrink-0 font-semibold tabular-nums">
@@ -312,15 +323,18 @@ export default function ReviewStep({
               );
             })}
           </ul>
-          {upload.progress !== null && (
+          {(upload.progress ?? roomUpload.progress) !== null && (
             <div className="space-y-1.5">
               <div className="flex justify-between text-sm">
-                <span>Uploading photos…</span>
+                <span>Uploading {uploadingFor}…</span>
                 <span className="tabular-nums text-muted-foreground">
-                  {upload.progress}%
+                  {upload.progress ?? roomUpload.progress}%
                 </span>
               </div>
-              <Progress value={upload.progress} aria-label="Upload progress" />
+              <Progress
+                value={upload.progress ?? roomUpload.progress}
+                aria-label="Upload progress"
+              />
             </div>
           )}
         </div>
