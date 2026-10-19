@@ -9,7 +9,7 @@ import { useAuth, useUpdateViewingStatus } from "@/hooks";
 import type { ViewingListItem, ViewingStatusPayload } from "@/types";
 import { formatDateTime, getErrorMessage } from "@/utils";
 
-type Dialog = "reject" | "reschedule" | "cancel";
+type Dialog = "reject" | "reschedule" | "cancel" | "host-cancel";
 
 // Only the moves the backend allows for this status and role (see ViewingStatus in enums.prisma)
 export default function ViewingActions({
@@ -83,32 +83,33 @@ export default function ViewingActions({
       </Button>,
     );
   }
-  // Completing is manual (no job does it), and the backend allows it only once the viewing time has passed:
-  // show the button from approval on, disabled with the time until then
-  let completeHint: string | null = null;
+  // An agreed viewing: the owner or an admin marks it done whenever it took place, or calls it off with a reason
   if (
     canReview &&
     (viewing.status === "APPROVED" || viewing.status === "RESCHEDULED")
   ) {
-    const at = formatDateTime(viewing.scheduledAt ?? viewing.preferredAt);
-    if (!timeHasPassed) completeHint = `Available after ${at}`;
     buttons.push(
       <Button
         key="complete"
         size="xs"
         variant="outline"
-        disabled={mutation.isPending || !timeHasPassed}
-        title={
-          timeHasPassed
-            ? "Mark this viewing as done"
-            : `You can mark it done after the viewing (${at})`
-        }
+        disabled={mutation.isPending}
         onClick={() =>
           send({ status: "COMPLETED" }, "Viewing marked as completed")
         }
       >
         <CheckCheck />
         Mark done
+      </Button>,
+      <Button
+        key="host-cancel"
+        size="xs"
+        variant="ghost"
+        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+        onClick={() => setDialog("host-cancel")}
+      >
+        <X />
+        Cancel
       </Button>,
     );
   }
@@ -129,12 +130,7 @@ export default function ViewingActions({
   return (
     <>
       {buttons.length > 0 ? (
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex justify-end gap-2">{buttons}</div>
-          {completeHint && (
-            <p className="text-xs text-muted-foreground">{completeHint}</p>
-          )}
-        </div>
+        <div className="flex justify-end gap-2">{buttons}</div>
       ) : (
         <span className="text-sm text-muted-foreground">—</span>
       )}
@@ -174,6 +170,24 @@ export default function ViewingActions({
           send(
             { status: "REJECTED", ownerNote: note.trim() || undefined },
             "Viewing request declined",
+          )
+        }
+      />
+      <StatusNoteDialog
+        open={dialog === "host-cancel"}
+        onOpenChange={(next) => !next && setDialog(null)}
+        title="Cancel this viewing?"
+        description={`${tenant} will be notified, with your reason.`}
+        noteMinLength={3}
+        noteLabel="Reason"
+        notePlaceholder="e.g. The room has just been rented"
+        submitLabel="Cancel viewing"
+        destructive
+        pending={mutation.isPending}
+        onSubmit={({ note }) =>
+          send(
+            { status: "CANCELLED", reason: note.trim() },
+            `Viewing cancelled. ${tenant} has been notified`,
           )
         }
       />
