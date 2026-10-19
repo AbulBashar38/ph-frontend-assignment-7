@@ -83,17 +83,26 @@ export default function ViewingActions({
       </Button>,
     );
   }
+  // Completing is manual (no job does it), and the backend allows it only once the viewing time has passed:
+  // show the button from approval on, disabled with the time until then
+  let completeHint: string | null = null;
   if (
     canReview &&
-    (viewing.status === "APPROVED" || viewing.status === "RESCHEDULED") &&
-    timeHasPassed
+    (viewing.status === "APPROVED" || viewing.status === "RESCHEDULED")
   ) {
+    const at = formatDateTime(viewing.scheduledAt ?? viewing.preferredAt);
+    if (!timeHasPassed) completeHint = `Available after ${at}`;
     buttons.push(
       <Button
         key="complete"
         size="xs"
         variant="outline"
-        disabled={mutation.isPending}
+        disabled={mutation.isPending || !timeHasPassed}
+        title={
+          timeHasPassed
+            ? "Mark this viewing as done"
+            : `You can mark it done after the viewing (${at})`
+        }
         onClick={() =>
           send({ status: "COMPLETED" }, "Viewing marked as completed")
         }
@@ -120,7 +129,12 @@ export default function ViewingActions({
   return (
     <>
       {buttons.length > 0 ? (
-        <div className="flex justify-end gap-2">{buttons}</div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex justify-end gap-2">{buttons}</div>
+          {completeHint && (
+            <p className="text-xs text-muted-foreground">{completeHint}</p>
+          )}
+        </div>
       ) : (
         <span className="text-sm text-muted-foreground">—</span>
       )}
