@@ -17,19 +17,31 @@ export default function RoleGuard({
   roles: UserRole[];
 }) {
   const router = useRouter();
-  const { data, isPending, isError } = useGetMe();
+  const { data, isPending, isError, isFetching } = useGetMe();
   const user = data?.data;
+  // A cached "signed out" answer (from before a login) is still being re-checked: wait, don't redirect yet
+  const checking = isPending || (!user && isFetching);
 
   useEffect(() => {
-    if (isPending) return;
+    if (checking) return;
     if (isError || !user) {
       // Read at redirect time instead of usePathname(), which would block prerendering of dynamic routes
       const back = window.location.pathname + window.location.search;
       router.replace(`/login?redirect=${encodeURIComponent(back)}`);
     }
-  }, [isPending, isError, user, router]);
+  }, [checking, isError, user, router]);
 
-  if (isPending) return <AuthLoading />;
+  // Back/forward can restore a frozen snapshot of this page (bfcache) after signing out; reload it so the
+  // server checks the session again (proxy.ts sends a signed-out visitor to /login)
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", onPageShow);
+    return () => window.removeEventListener("pageshow", onPageShow);
+  }, []);
+
+  if (checking) return <AuthLoading />;
   if (isError || !user) return <AuthLoading label="Redirecting to login" />;
   if (!roles.includes(user.role)) {
     return <AccessDenied homeHref={getDashboardPath(user.role)} />;

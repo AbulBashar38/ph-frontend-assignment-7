@@ -17,8 +17,12 @@ export function useLogoutAction() {
       onSuccess: (res) => {
         toast.success(res.message);
         onDone?.();
+        // The client router cache still holds the signed-in user's pages: leave protected areas with a full
+        // page load (so Back can't show them), and elsewhere drop that cache so links fetch fresh pages
         if (PROTECTED_AREAS.some((area) => pathname.startsWith(area))) {
-          router.replace("/login");
+          window.location.replace("/login");
+        } else {
+          router.refresh();
         }
       },
       onError: (error) => toast.error(getErrorMessage(error)),
