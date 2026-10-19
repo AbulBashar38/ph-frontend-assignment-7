@@ -13,6 +13,8 @@ import UserMenu from "./user-menu";
 // Pages that aren't in a sidebar (Stripe's return pages)
 const EXTRA_TITLES: [prefix: string, title: string][] = [
   ["/payment", "Payments"],
+  // Another tenant's profile, not "My profile"
+  ["/dashboard/roommate/profile/", "Roommate profile"],
 ];
 
 export default function DashboardHeader({ userRole }: { userRole: UserRole }) {
